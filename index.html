@@ -22,7 +22,8 @@ html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Ro
 .top-bar{background:#1a1a2e;padding:14px 16px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;}
 .top-bar-title{color:#fff;font-size:16px;font-weight:600;}
 .top-bar-sub{color:rgba(255,255,255,0.5);font-size:11px;margin-top:2px;}
-.bb-logo{width:38px;height:38px;border-radius:50%;background:#EF9F27;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#412402;flex-shrink:0;}
+.bb-logo{width:44px;height:44px;border-radius:50%;overflow:hidden;flex-shrink:0;display:flex;align-items:center;justify-content:center;}
+.bb-logo img{width:100%;height:100%;object-fit:cover;}
 .nav{display:flex;border-bottom:0.5px solid var(--border);background:var(--bg);flex-shrink:0;position:sticky;top:0;z-index:10;}
 .nav-btn{flex:1;padding:12px 4px;font-size:12px;font-weight:500;color:var(--text2);background:none;border:none;cursor:pointer;border-bottom:2px solid transparent;}
 .nav-btn.active{color:#BA7517;border-bottom-color:#BA7517;}
@@ -110,13 +111,12 @@ select:focus,input:focus{border-color:#BA7517;box-shadow:0 0 0 2px rgba(186,117,
 <div class="shell">
   <div class="top-bar">
     <div><div class="top-bar-title">Beyond Boundaries Annual Tournament (April 25-26)</div><div class="top-bar-sub">MKB Ghatkopar</div></div>
-    <div class="bb-logo">BB</div>
+    <div class="bb-logo"><img src="BBPL 2026.jpg" alt="BBPL 2026"/></div>
   </div>
   <nav class="nav">
     <button class="nav-btn active" onclick="showTab('schedule',this)">Schedule</button>
     <button class="nav-btn" onclick="showTab('squad',this)">Squads</button>
     <button class="nav-btn" onclick="showTab('standings',this)">Standings</button>
-    <button class="nav-btn" onclick="showTab('admin',this)">Admin</button>
   </nav>
   <div class="content">
 
