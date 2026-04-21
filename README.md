@@ -1,2 +1,2 @@
-# bbpl2026
-BB Annual Tournament schedule
+# BEYOND BOUNDARIES ANNUAL TOURNAMENT 2026
+Tournament schedule April 25-26
