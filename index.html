@@ -321,7 +321,9 @@ function getStandings(pool){
 
 function renderSchedule(){
   const team=document.getElementById('team-filter').value;
-  const matches=team==='all'?ALL_FIXTURES:ALL_FIXTURES.filter(f=>f.home===team||f.away===team);
+  const dayOrder={Saturday:0,Sunday:1};
+  const raw=team==='all'?ALL_FIXTURES:ALL_FIXTURES.filter(f=>f.home===team||f.away===team);
+  const matches=[...raw].sort((a,b)=>dayOrder[a.day]-dayOrder[b.day]||a.time.localeCompare(b.time,undefined,{numeric:true})||a.turf-b.turf);
   let html='',lastDay='';
   matches.forEach(f=>{
     if(f.day!==lastDay){lastDay=f.day;html+=`<div class="day-label">${f.day}</div>`;}
