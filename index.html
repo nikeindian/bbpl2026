@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>BBPL 2026 — Tournament Tracker</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --bg:#fff;--bg2:#f5f5f0;--bg3:#eee;
+  --text:#1a1a1a;--text2:#666;--text3:#999;
+  --border:rgba(0,0,0,0.12);--border2:rgba(0,0,0,0.22);
+  --sbg:#eaf3de;--stxt:#3b6d11;
+  --dbg:#fcebeb;--dtxt:#a32d2d;
+  --wbg:#faeeda;--wtxt:#854f0b;
+}
+@media(prefers-color-scheme:dark){:root{
+  --bg:#1e1e1e;--bg2:#2a2a2a;--bg3:#333;
+  --text:#f0f0f0;--text2:#aaa;--text3:#777;
+  --border:rgba(255,255,255,0.12);--border2:rgba(255,255,255,0.22);
+  --sbg:#27500a;--stxt:#c0dd97;
+  --dbg:#501313;--dtxt:#f09595;
+  --wbg:#633806;--wtxt:#fac775;
+}}
+html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:var(--bg3);color:var(--text);}
+.shell{max-width:480px;margin:0 auto;min-height:100vh;background:var(--bg);display:flex;flex-direction:column;}
+.top-bar{background:#1a1a2e;padding:14px 16px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;}
+.top-bar-title{color:#fff;font-size:16px;font-weight:600;}
+.top-bar-sub{color:rgba(255,255,255,0.5);font-size:11px;margin-top:2px;}
+.bb-logo{width:38px;height:38px;border-radius:50%;background:#EF9F27;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#412402;flex-shrink:0;}
+.nav{display:flex;border-bottom:0.5px solid var(--border);background:var(--bg);flex-shrink:0;position:sticky;top:0;z-index:10;}
+.nav-btn{flex:1;padding:12px 4px;font-size:12px;font-weight:500;color:var(--text2);background:none;border:none;cursor:pointer;border-bottom:2px solid transparent;}
+.nav-btn.active{color:#BA7517;border-bottom-color:#BA7517;}
+.content{flex:1;}
+.section{display:none;padding:16px;}
+.section.active{display:block;}
+label{font-size:12px;color:var(--text2);display:block;margin-bottom:5px;}
+select,input[type=text],input[type=password]{width:100%;padding:10px 12px;border:0.5px solid var(--border2);border-radius:8px;background:var(--bg);color:var(--text);font-size:14px;outline:none;-webkit-appearance:none;appearance:none;}
+select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23999' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;padding-right:32px;}
+select:focus,input:focus{border-color:#BA7517;box-shadow:0 0 0 2px rgba(186,117,23,0.15);}
+.field-wrap{margin-bottom:14px;}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.pool-tabs{display:flex;gap:8px;margin-bottom:14px;}
+.pool-tab{padding:6px 16px;border-radius:20px;font-size:12px;font-weight:600;border:0.5px solid var(--border2);background:none;cursor:pointer;color:var(--text2);}
+.pool-tab.active{background:#1a1a2e;color:#fff;border-color:#1a1a2e;}
+.day-label{font-size:11px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:.07em;margin:14px 0 7px;}
+.day-label:first-child{margin-top:0;}
+.match-card{border:0.5px solid var(--border);border-radius:10px;padding:11px 13px;margin-bottom:8px;background:var(--bg);}
+.match-time{font-size:11px;color:var(--text3);margin-bottom:3px;}
+.match-teams{font-size:14px;font-weight:600;color:var(--text);line-height:1.4;}
+.vs{color:var(--text3);font-weight:400;}
+.match-meta{display:flex;gap:8px;margin-top:7px;align-items:center;flex-wrap:wrap;}
+.turf-tag{font-size:11px;padding:2px 8px;border-radius:20px;font-weight:600;}
+.t1{background:#E6F1FB;color:#0C447C;}.t2{background:#EAF3DE;color:#3B6D11;}.t3{background:#FAEEDA;color:#854F0B;}
+.pool-tag{font-size:10px;padding:2px 7px;border-radius:20px;font-weight:600;}
+.pa-tag{background:#EEEDFE;color:#3C3489;}.pb-tag{background:#E1F5EE;color:#085041;}
+.result-tag{font-size:11px;padding:2px 8px;border-radius:20px;font-weight:600;margin-left:auto;}
+.r-w{background:var(--sbg);color:var(--stxt);}.r-l{background:var(--dbg);color:var(--dtxt);}.r-ns{background:var(--bg2);color:var(--text3);}
+.squad-top{display:flex;align-items:center;gap:12px;margin-bottom:14px;padding-bottom:13px;border-bottom:0.5px solid var(--border);}
+.squad-avatar{width:44px;height:44px;border-radius:50%;background:var(--wbg);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:var(--wtxt);flex-shrink:0;}
+.squad-title{font-size:16px;font-weight:600;color:var(--text);}
+.squad-sub{font-size:12px;color:var(--text2);margin-top:2px;}
+.player-row{display:flex;align-items:center;padding:9px 0;border-bottom:0.5px solid var(--border);}
+.player-row:last-child{border-bottom:none;}
+.p-num{font-size:12px;color:var(--text3);width:22px;flex-shrink:0;}
+.p-name{font-size:14px;color:var(--text);flex:1;}
+.p-pts{font-size:13px;font-weight:500;color:var(--text2);white-space:nowrap;}
+.p-bar{width:50px;height:4px;background:var(--border);border-radius:2px;margin-left:8px;flex-shrink:0;}
+.p-bar-fill{height:4px;border-radius:2px;background:#EF9F27;}
+.std-hdr{display:flex;font-size:11px;color:var(--text3);padding:0 0 7px;border-bottom:0.5px solid var(--border);margin-bottom:2px;}
+.s-row{display:flex;align-items:center;padding:10px 0;border-bottom:0.5px solid var(--border);}
+.s-row:last-child{border-bottom:none;}
+.s-pos{width:22px;font-weight:600;color:var(--text2);flex-shrink:0;font-size:13px;}
+.s-pos.q{color:#BA7517;}
+.s-name{flex:1;font-weight:600;color:var(--text);font-size:13px;}
+.s-stat{width:28px;text-align:center;color:var(--text);font-size:13px;}
+.s-pts-val{width:28px;text-align:right;font-size:14px;font-weight:700;color:#BA7517;}
+.qualify-note{font-size:12px;color:var(--text2);margin-top:12px;padding:9px 12px;background:var(--bg2);border-radius:8px;line-height:1.5;}
+.admin-lock{display:flex;align-items:center;gap:10px;padding:12px;background:var(--bg2);border-radius:10px;margin-bottom:14px;font-size:13px;color:var(--text2);}
+.lock-icon{width:30px;height:30px;border-radius:50%;background:var(--wbg);display:flex;align-items:center;justify-content:center;flex-shrink:0;color:var(--wtxt);}
+.admin-box{border:0.5px solid var(--border);border-radius:10px;padding:14px;margin-bottom:12px;}
+.admin-box h3{font-size:13px;font-weight:600;color:var(--text);margin-bottom:12px;}
+.save-btn{width:100%;padding:11px;background:#1a1a2e;color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;margin-top:4px;}
+.save-btn:active{opacity:.85;}
+.err-msg{font-size:12px;color:var(--dtxt);margin-top:6px;}
+.ok-msg{font-size:12px;color:var(--stxt);margin-top:6px;font-weight:500;}
+.log-hdr{font-size:11px;font-weight:600;color:var(--text2);margin:14px 0 7px;text-transform:uppercase;letter-spacing:.05em;}
+.log-row{font-size:12px;color:var(--text2);padding:7px 0;border-bottom:0.5px solid var(--border);display:flex;justify-content:space-between;align-items:center;gap:8px;}
+.log-row:last-child{border-bottom:none;}
+.log-match{flex:1;font-size:11px;}
+.log-w{font-weight:600;color:var(--stxt);font-size:11px;white-space:nowrap;}
+.undo-btn{font-size:10px;color:var(--dtxt);background:none;border:0.5px solid var(--dtxt);border-radius:5px;cursor:pointer;padding:2px 6px;flex-shrink:0;}
+.empty{text-align:center;padding:40px 20px;color:var(--text3);font-size:13px;}
+@media(min-width:480px){.shell{box-shadow:0 0 40px rgba(0,0,0,0.1);}}
+</style>
+</head>
+<body>
+<div class="shell">
+  <div class="top-bar">
+    <div>
+      <div class="top-bar-title">BBPL 2026</div>
+      <div class="top-bar-sub">Beyond Boundaries Sports &amp; Entertainment</div>
+    </div>
+    <div class="bb-logo">BB</div>
+  </div>
+  <nav class="nav">
+    <button class="nav-btn active" onclick="showTab('schedule',this)">Schedule</button>
+    <button class="nav-btn" onclick="showTab('squad',this)">Squads</button>
+    <button class="nav-btn" onclick="showTab('standings',this)">Standings</button>
+    <button class="nav-btn" onclick="showTab('admin',this)">Admin</button>
+  </nav>
+  <div class="content">
+
+    <div id="tab-schedule" class="section active">
+      <div class="field-wrap">
+        <label>Filter by team</label>
+        <select id="team-filter" onchange="renderSchedule()">
+          <option value="all">All matches</option>
+          <optgroup label="Pool A">
+            <option value="BB Vikings">BB Vikings (A1)</option>
+            <option value="BB Bashers">BB Bashers (A2)</option>
+            <option value="BB Bro Squad">BB Bro Squad (A3)</option>
+            <option value="BB Maratha">BB Maratha (A4)</option>
+            <option value="BB United">BB United (A5)</option>
+            <option value="BB Big Blasters">BB Big Blasters (A6)</option>
+            <option value="BB Devils">BB Devils (A7)</option>
+          </optgroup>
+          <optgroup label="Pool B">
+            <option value="BB Giants">BB Giants (B1)</option>
+            <option value="BB SG Legends">BB SG Legends (B2)</option>
+            <option value="BB Gladiators">BB Gladiators (B3)</option>
+            <option value="BB Game Changers">BB Game Changers (B4)</option>
+            <option value="BB Yoddhas">BB Yoddhas (B5)</option>
+            <option value="BB Dhurandhars">BB Dhurandhars (B6)</option>
+            <option value="BB Super Kings">BB Super Kings (B7)</option>
+          </optgroup>
+        </select>
+      </div>
+      <div id="schedule-list"></div>
+    </div>
+
+    <div id="tab-squad" class="section">
+      <div class="field-wrap">
+        <label>Select team</label>
+        <select id="squad-select" onchange="renderSquad()">
+          <optgroup label="Pool A">
+            <option value="BB Vikings">BB Vikings</option>
+            <option value="BB Bashers">BB Bashers</option>
+            <option value="BB Bro Squad">BB Bro Squad</option>
+            <option value="BB Maratha">BB Maratha</option>
+            <option value="BB United">BB United</option>
+            <option value="BB Big Blasters">BB Big Blasters</option>
+            <option value="BB Devils">BB Devils</option>
+          </optgroup>
+          <optgroup label="Pool B">
+            <option value="BB Giants">BB Giants</option>
+            <option value="BB SG Legends">BB SG Legends</option>
+            <option value="BB Gladiators">BB Gladiators</option>
+            <option value="BB Game Changers">BB Game Changers</option>
+            <option value="BB Yoddhas">BB Yoddhas</option>
+            <option value="BB Dhurandhars">BB Dhurandhars</option>
+            <option value="BB Super Kings">BB Super Kings</option>
+          </optgroup>
+        </select>
+      </div>
+      <div id="squad-display"></div>
+    </div>
+
+    <div id="tab-standings" class="section">
+      <div class="pool-tabs">
+        <button class="pool-tab active" onclick="switchStandings('A',this)">Pool A</button>
+        <button class="pool-tab" onclick="switchStandings('B',this)">Pool B</button>
+      </div>
+      <div class="std-hdr">
+        <span style="width:22px"></span><span style="flex:1">Team</span>
+        <span style="width:28px;text-align:center">P</span>
+        <span style="width:28px;text-align:center">W</span>
+        <span style="width:28px;text-align:center">L</span>
+        <span style="width:28px;text-align:right">Pts</span>
+      </div>
+      <div id="standings-list"></div>
+      <div class="qualify-note" id="qualify-note"></div>
+    </div>
+
+    <div id="tab-admin" class="section">
+      <div class="admin-lock">
+        <div class="lock-icon">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="3" y="6" width="8" height="6" rx="1.5" stroke="currentColor" stroke-width="1.3"/><path d="M4.5 6V4.5a2.5 2.5 0 015 0V6" stroke="currentColor" stroke-width="1.3"/></svg>
+        </div>
+        <span>Admin only — password protected</span>
+      </div>
+      <div class="field-wrap">
+        <label>Password</label>
+        <input type="password" id="admin-pass" placeholder="Enter admin password" oninput="checkAdmin()"/>
+        <div id="pass-err" class="err-msg" style="display:none">Incorrect password</div>
+      </div>
+      <div id="admin-controls" style="display:none">
+        <div class="admin-box">
+          <h3>Enter match result</h3>
+          <div class="field-wrap"><label>Pool</label>
+            <select id="res-pool" onchange="populateMatchSelect()">
+              <option value="A">Pool A</option>
+              <option value="B">Pool B</option>
+            </select>
+          </div>
+          <div class="field-wrap"><label>Match</label>
+            <select id="res-match" onchange="populateWinner()"><option value="">Select match...</option></select>
+          </div>
+          <div class="two-col">
+            <div class="field-wrap"><label>Winner</label>
+              <select id="res-winner"><option value="">Select winner...</option></select>
+            </div>
+            <div class="field-wrap"><label>Margin (optional)</label>
+              <input type="text" id="res-margin" placeholder="e.g. 18 runs"/>
+            </div>
+          </div>
+          <button class="save-btn" onclick="saveResult()">Save result</button>
+          <div id="ok-msg" class="ok-msg" style="display:none">Result saved!</div>
+        </div>
+        <div id="log-wrap" style="display:none">
+          <div class="log-hdr">Results entered</div>
+          <div id="log-list"></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+<script>
+const PA=['BB Vikings','BB Bashers','BB Bro Squad','BB Maratha','BB United','BB Big Blasters','BB Devils'];
+const PB=['BB Giants','BB SG Legends','BB Gladiators','BB Game Changers','BB Yoddhas','BB Dhurandhars','BB Super Kings'];
+const POOL_OF={};PA.forEach(t=>POOL_OF[t]='A');PB.forEach(t=>POOL_OF[t]='B');
+
+const SQUADS={
+  'BB Vikings':[['Vidyanand Joshi',380000],['Rohit Bhosale',70000],['Akkshay Kuware',31000],['Gaurav Pradeep Barve',120000],['Gurudatta Galvankar',150000],['Uttam Khamkar',115000],['Sameep Shevade',300000],['Rahul Samant',250000],['Deepak Teli',45000],['Nikhil Pargaonkar',30000]],
+  'BB Bashers':[['Aditya Utturkar',105000],['Adwait Limaye',400000],['Rahul Arun Gurav',65000],['Shashank Sthalekar',70000],['Vikas Parashar',22000],['Sumedh Khare',440000],['Piyush Mujmer',100000],['Ameya Aresh Patil',130000],['Ajinkya Deolekar',135000],['Prafull Igawe',33000]],
+  'BB Bro Squad':[['Nikhil Panchal',340000],['Hemant Gunjal',290000],['Jayesh Padloskar',140000],['Siddhesh Tawde',90000],['Harshad Naringrekar',150000],['Laxman Pednekar',300000],['Amol Pednekar',90000],['Arpan Shah',55000],['Ketan Chavan',34000],['Nikheel Kelkar',11000]],
+  'BB Maratha':[['Animish Pandit',50000],['Rahul Neharkar',110000],['Akshaya R. Ketkar',460000],['Sanam Umbargikar',200000],['Bhavesh Shah',300000],['Ganesh V Naik',80000],['Nikhil Joshi',100000],['Vihang Paranjape',170000],['Sachin Nevarekar',10000],['Abhijit Deshpande',20000]],
+  'BB United':[['Advait Mone',22000],['Dr. Kishor Borkar',380000],['Lokesh Margi',290000],['Sagar Alve',95000],['Prathamesh Dubhashi',250000],['Bhushan Kulkarni',20000],['Chintan Solanki',170000],['Umang Parashar',12000],['Vedang Shidhore',250000],['Tapan Bhave',10000]],
+  'BB Big Blasters':[['Vishal Bandal',420000],['Abhijit Vitthal Sawant',50000],['Amit Shah',250000],['Aashutosh N Shinde',380000],['Swapnil Modse',95000],['Ganesh Tawde',40000],['Praveen Poojary',45000],['Sunil Shirurkar',150000],['Anil Suresh Kulye',41000],['Gaurav Sawant',21000]],
+  'BB Devils':[['Durgesh Palav',14000],['Rahul Acharekar',70000],['Ajit Tawde',23000],['Ajay Nadkarni',230000],['Elias',250000],['Sandip Bagwe',22000],['Dinesh Khopkar',500000],['Bhavesh Patel',290000],['Chinmay Ghate',40000],['Ravindra Gaikwad',60000]],
+  'BB Giants':[['Aakash Purohit',150000],['Rajas Paranjape',240000],['Amey Dongre',310000],['Amar Palkar',210000],['Ameya Ranade',160000],['Kaustubh Salagre',45000],['Nikesh Patil',150000],['Raunak Shailesh Patil',85000],['Niranjan Joshi',45000],['Rohit Sakpal',100000]],
+  'BB SG Legends':[['Vaibhav Shelar',45000],['Tejas Gokhale',240000],['Ashish Kale',380000],['Abhishek Khanwalkar',130000],['Yogesh Karambelkar',11000],['Anupam Sathe',70000],['Mahesh Parab',290000],['Yashwant Naik',300000],['Jyotirmay Pingat',13000],['Piyush Rane',21000]],
+  'BB Gladiators':[['Akshay Nabar',300000],['Anupam Kanyalkar',300000],['Nachiket Vagal',45000],['Kumar Swamy',105000],['Rohit Pereira',260000],['Shirish Paranjpe',22000],['Mayuresh Gangal',320000],['Yogendra Shidhore',19000],['Siddhesh Kulkarni',75000],['Nooresh Merani',40000]],
+  'BB Game Changers':[['Amey Hardikar',300000],['Ritesh Shah',22000],['Shailesh',170000],['Sudip Modse',220000],['Gaurav Sabnis',300000],['Rohit Shukla',70000],['Saurabh Naik',320000],['Deepak Sureka',45000],['Rajeev Salvi',12997],['Santosh Kamble',40000]],
+  'BB Yoddhas':[['Tanmay Deodhar',180000],['Ameya Guhagarkar',440000],['Mandar Tawde',50000],['Subodh Naiksatam',25000],['Ameya Patankar',170000],['Diptesh Gopal More',90000],['Tejas Kulkarni',210000],['Nikhil Lagoo',105000],['Vishwesh',140000],['Santosh Kshirsagar',50000]],
+  'BB Dhurandhars':[['Sujay Raghavan',35000],['Saurabh Gholam',23000],['Hemant Naik',360000],['Harsh Soni',150000],['Chandan S Lotlikar',160000],['Sandesh Sawant',45000],['Sagar Sawant',105000],['Sunil Raghav',22000],['Vidit Mantri',300000],['Vivek Kanade',300000]],
+  'BB Super Kings':[['Ameya Shete',320000],['Rahul Lande',290000],['Rohan Bapat',270000],['Mandar Bhide',190000],['Dhanesh Pillai',100000],['Shailesh Atmaram Mahadeshwar',21000],['Rohit Mane',80000],['Sameer Ranade',120000],['Kiran Dharmadhikari',34000],['Amitodan Gaikwad',75000]]
+};
+
+const PA_FIXTURES=[
+  {id:101,day:'Saturday',time:'1:30 pm',home:'BB Vikings',away:'BB Devils',turf:1},
+  {id:102,day:'Saturday',time:'2:15 pm',home:'BB Bashers',away:'BB Big Blasters',turf:1},
+  {id:103,day:'Saturday',time:'3:00 pm',home:'BB Bro Squad',away:'BB United',turf:1},
+  {id:104,day:'Saturday',time:'3:00 pm',home:'BB Vikings',away:'BB Maratha',turf:3},
+  {id:105,day:'Saturday',time:'3:45 pm',home:'BB Bashers',away:'BB Devils',turf:2},
+  {id:106,day:'Saturday',time:'4:30 pm',home:'BB United',away:'BB Big Blasters',turf:2},
+  {id:107,day:'Saturday',time:'4:30 pm',home:'BB Bro Squad',away:'BB Maratha',turf:3},
+  {id:108,day:'Saturday',time:'6:00 pm',home:'BB Vikings',away:'BB Bashers',turf:2},
+  {id:109,day:'Saturday',time:'6:45 pm',home:'BB United',away:'BB Devils',turf:3},
+  {id:110,day:'Saturday',time:'7:30 pm',home:'BB Maratha',away:'BB Big Blasters',turf:1},
+  {id:111,day:'Saturday',time:'7:30 pm',home:'BB Bashers',away:'BB Bro Squad',turf:2},
+  {id:112,day:'Saturday',time:'8:15 pm',home:'BB Vikings',away:'BB United',turf:3},
+  {id:113,day:'Saturday',time:'9:00 pm',home:'BB Maratha',away:'BB Devils',turf:2},
+  {id:114,day:'Sunday',time:'9:00 am',home:'BB Bashers',away:'BB United',turf:1},
+  {id:115,day:'Sunday',time:'9:00 am',home:'BB Bro Squad',away:'BB Big Blasters',turf:3},
+  {id:116,day:'Sunday',time:'10:30 am',home:'BB Bro Squad',away:'BB Devils',turf:1},
+  {id:117,day:'Sunday',time:'10:30 am',home:'BB Vikings',away:'BB Big Blasters',turf:2},
+  {id:118,day:'Sunday',time:'12:00 pm',home:'BB Vikings',away:'BB Bro Squad',turf:1},
+  {id:119,day:'Sunday',time:'12:00 pm',home:'BB Bashers',away:'BB Maratha',turf:3},
+  {id:120,day:'Sunday',time:'12:45 pm',home:'BB Big Blasters',away:'BB Devils',turf:3},
+  {id:121,day:'Sunday',time:'1:30 pm',home:'BB Maratha',away:'BB United',turf:2},
+];
+
+const PB_FIXTURES=[
+  {id:201,day:'Saturday',time:'1:30 pm',home:'BB Giants',away:'BB Super Kings',turf:2},
+  {id:202,day:'Saturday',time:'2:15 pm',home:'BB SG Legends',away:'BB Dhurandhars',turf:2},
+  {id:203,day:'Saturday',time:'3:00 pm',home:'BB Gladiators',away:'BB Yoddhas',turf:2},
+  {id:204,day:'Saturday',time:'3:45 pm',home:'BB Giants',away:'BB Game Changers',turf:1},
+  {id:205,day:'Saturday',time:'3:45 pm',home:'BB SG Legends',away:'BB Super Kings',turf:3},
+  {id:206,day:'Saturday',time:'4:30 pm',home:'BB Yoddhas',away:'BB Dhurandhars',turf:1},
+  {id:207,day:'Saturday',time:'5:15 pm',home:'BB Gladiators',away:'BB Game Changers',turf:3},
+  {id:208,day:'Saturday',time:'6:00 pm',home:'BB Giants',away:'BB SG Legends',turf:1},
+  {id:209,day:'Saturday',time:'6:00 pm',home:'BB Yoddhas',away:'BB Super Kings',turf:3},
+  {id:210,day:'Saturday',time:'7:30 pm',home:'BB Game Changers',away:'BB Dhurandhars',turf:3},
+  {id:211,day:'Saturday',time:'8:15 pm',home:'BB SG Legends',away:'BB Gladiators',turf:1},
+  {id:212,day:'Saturday',time:'8:15 pm',home:'BB Giants',away:'BB Yoddhas',turf:2},
+  {id:213,day:'Saturday',time:'9:00 pm',home:'BB Game Changers',away:'BB Super Kings',turf:1},
+  {id:214,day:'Sunday',time:'9:00 am',home:'BB Gladiators',away:'BB Dhurandhars',turf:2},
+  {id:215,day:'Sunday',time:'9:45 am',home:'BB SG Legends',away:'BB Yoddhas',turf:3},
+  {id:216,day:'Sunday',time:'10:30 am',home:'BB Giants',away:'BB Dhurandhars',turf:3},
+  {id:217,day:'Sunday',time:'11:15 am',home:'BB Gladiators',away:'BB Super Kings',turf:3},
+  {id:218,day:'Sunday',time:'12:00 pm',home:'BB SG Legends',away:'BB Game Changers',turf:2},
+  {id:219,day:'Sunday',time:'12:45 pm',home:'BB Giants',away:'BB Gladiators',turf:1},
+  {id:220,day:'Sunday',time:'12:45 pm',home:'BB Dhurandhars',away:'BB Super Kings',turf:2},
+  {id:221,day:'Sunday',time:'1:30 pm',home:'BB Game Changers',away:'BB Yoddhas',turf:3},
+];
+
+const ALL_FIXTURES=[...PA_FIXTURES,...PB_FIXTURES];
+let results={};let curPool='A';
+
+function getStandings(pool){
+  const teams=pool==='A'?PA:PB,fixtures=pool==='A'?PA_FIXTURES:PB_FIXTURES,s={};
+  teams.forEach(t=>s[t]={p:0,w:0,l:0,pts:0});
+  fixtures.forEach(f=>{const r=results[f.id];if(!r)return;s[f.home].p++;s[f.away].p++;if(r.winner===f.home){s[f.home].w++;s[f.home].pts+=2;s[f.away].l++;}else{s[f.away].w++;s[f.away].pts+=2;s[f.home].l++;}});
+  return Object.entries(s).sort((a,b)=>b[1].pts-a[1].pts||b[1].w-a[1].w);
+}
+
+function renderSchedule(){
+  const team=document.getElementById('team-filter').value;
+  const matches=team==='all'?ALL_FIXTURES:ALL_FIXTURES.filter(f=>f.home===team||f.away===team);
+  let html='',lastDay='';
+  matches.forEach(f=>{
+    if(f.day!==lastDay){lastDay=f.day;html+=`<div class="day-label">${f.day}</div>`;}
+    const r=results[f.id],pool=POOL_OF[f.home];
+    let rtag='<span class="result-tag r-ns">Not played</span>';
+    if(r){if(team==='all')rtag=`<span class="result-tag r-w">${r.winner.replace('BB ','')}</span>`;else{const won=r.winner===team;rtag=`<span class="result-tag ${won?'r-w':'r-l'}">${won?'Won':'Lost'}${r.margin?' · '+r.margin:''}</span>`;}}
+    const ptag=team==='all'?`<span class="pool-tag ${pool==='A'?'pa-tag':'pb-tag'}">Pool ${pool}</span>`:'';
+    html+=`<div class="match-card"><div class="match-time">${f.time}</div><div class="match-teams">${f.home} <span class="vs"> vs </span>${f.away}</div><div class="match-meta"><span class="turf-tag t${f.turf}">Turf ${f.turf}</span>${ptag}${rtag}</div></div>`;
+  });
+  if(!html)html='<div class="empty">No matches found</div>';
+  document.getElementById('schedule-list').innerHTML=html;
+}
+
+function renderSquad(){
+  const team=document.getElementById('squad-select').value,players=SQUADS[team];if(!players)return;
+  const max=Math.max(...players.map(p=>p[1])),total=players.reduce((s,p)=>s+p[1],0);
+  const initials=team.replace('BB ','').split(' ').map(w=>w[0]).join('').slice(0,3),pool=POOL_OF[team];
+  document.getElementById('squad-display').innerHTML=`<div class="squad-top"><div class="squad-avatar">${initials}</div><div><div class="squad-title">${team}</div><div class="squad-sub">Pool ${pool} &nbsp;·&nbsp; Purse ₹${total.toLocaleString('en-IN')}</div></div></div>${players.map((p,i)=>`<div class="player-row"><span class="p-num">${i+1}</span><span class="p-name">${p[0]}</span><span class="p-pts">₹${p[1].toLocaleString('en-IN')}</span><div class="p-bar"><div class="p-bar-fill" style="width:${Math.round(p[1]/max*100)}%"></div></div></div>`).join('')}`;
+}
+
+function renderStandings(pool){
+  curPool=pool;
+  document.getElementById('standings-list').innerHTML=getStandings(pool).map(([name,s],i)=>`<div class="s-row"><span class="s-pos ${i<2?'q':''}">${i+1}</span><span class="s-name">${name.replace('BB ','')}</span><span class="s-stat">${s.p}</span><span class="s-stat">${s.w}</span><span class="s-stat">${s.l}</span><span class="s-pts-val">${s.pts}</span></div>`).join('');
+  document.getElementById('qualify-note').textContent=pool==='A'?'Top 2 advance. Pool A topper → SF1 vs Q2 winner. 2nd place → Q1 vs 3rd Pool B.':'Top 2 advance. Pool B topper → SF2 vs Q1 winner. 2nd place → Q2 vs 3rd Pool A.';
+}
+
+function switchStandings(pool,btn){document.querySelectorAll('#tab-standings .pool-tab').forEach(b=>b.classList.remove('active'));btn.classList.add('active');renderStandings(pool);}
+
+function showTab(tab,btn){
+  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('tab-'+tab).classList.add('active');btn.classList.add('active');
+  if(tab==='standings')renderStandings(curPool);
+}
+
+function checkAdmin(){
+  const v=document.getElementById('admin-pass').value,ctrl=document.getElementById('admin-controls'),err=document.getElementById('pass-err');
+  if(v==='bbpl2026'){ctrl.style.display='block';err.style.display='none';populateMatchSelect();}
+  else if(v.length>=8){ctrl.style.display='none';err.style.display='block';}
+  else{ctrl.style.display='none';err.style.display='none';}
+}
+
+function populateMatchSelect(){
+  const pool=document.getElementById('res-pool').value,fixtures=pool==='A'?PA_FIXTURES:PB_FIXTURES,sel=document.getElementById('res-match');
+  sel.innerHTML='<option value="">Select match...</option>';
+  fixtures.forEach(f=>{sel.innerHTML+=`<option value="${f.id}">${f.day} ${f.time} | ${f.home.replace('BB ','')} vs ${f.away.replace('BB ','')}${results[f.id]?' ✓':''}</option>`;});
+  document.getElementById('res-winner').innerHTML='<option value="">Select winner...</option>';
+}
+
+function populateWinner(){
+  const f=ALL_FIXTURES.find(x=>x.id===parseInt(document.getElementById('res-match').value)),ws=document.getElementById('res-winner');
+  ws.innerHTML='<option value="">Select winner...</option>';
+  if(f)ws.innerHTML+=`<option value="${f.home}">${f.home}</option><option value="${f.away}">${f.away}</option>`;
+}
+
+function saveResult(){
+  const fid=parseInt(document.getElementById('res-match').value),winner=document.getElementById('res-winner').value,margin=document.getElementById('res-margin').value.trim();
+  if(!fid||!winner)return;
+  results[fid]={winner,margin};
+  const msg=document.getElementById('ok-msg');msg.style.display='block';setTimeout(()=>msg.style.display='none',2500);
+  document.getElementById('res-match').value='';document.getElementById('res-winner').innerHTML='<option value="">Select winner...</option>';document.getElementById('res-margin').value='';
+  populateMatchSelect();renderSchedule();renderStandings(curPool);renderLog();
+}
+
+function undoResult(fid){delete results[fid];populateMatchSelect();renderSchedule();renderStandings(curPool);renderLog();}
+
+function renderLog(){
+  const wrap=document.getElementById('log-wrap'),entered=ALL_FIXTURES.filter(f=>results[f.id]);
+  if(!entered.length){wrap.style.display='none';return;}
+  wrap.style.display='block';
+  document.getElementById('log-list').innerHTML=entered.map(f=>{const r=results[f.id];return `<div class="log-row"><span class="log-match">${f.home.replace('BB ','')} vs ${f.away.replace('BB ','')}</span><span class="log-w">${r.winner.replace('BB ','')}${r.margin?' ('+r.margin+')':''}</span><button class="undo-btn" onclick="undoResult(${f.id})">undo</button></div>`;}).join('');
+}
+
+renderSchedule();renderSquad();renderStandings('A');
+</script>
+</body>
+</html>
