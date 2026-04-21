@@ -50,6 +50,7 @@ select:focus,input:focus{border-color:#BA7517;box-shadow:0 0 0 2px rgba(186,117,
 .t1{background:#E6F1FB;color:#0C447C;}.t2{background:#EAF3DE;color:#3B6D11;}.t3{background:#FAEEDA;color:#854F0B;}
 .pool-tag{font-size:10px;padding:2px 7px;border-radius:20px;font-weight:600;}
 .pa-tag{background:#EEEDFE;color:#3C3489;}.pb-tag{background:#E1F5EE;color:#085041;}
+.playoff-tag{font-size:10px;padding:2px 7px;border-radius:20px;font-weight:700;background:#1a1a2e;color:#EF9F27;}
 .result-tag{font-size:11px;padding:2px 8px;border-radius:20px;font-weight:600;margin-left:auto;}
 .r-w{background:var(--sbg);color:var(--stxt);}.r-l{background:var(--dbg);color:var(--dtxt);}.r-ns{background:var(--bg2);color:var(--text3);}
 
@@ -307,7 +308,14 @@ const PB_FIXTURES=[
   {id:221,day:'Sunday',time:'1:30 pm',home:'BB Game Changers',away:'BB Yoddhas',turf:3},
 ];
 
-const ALL_FIXTURES=[...PA_FIXTURES,...PB_FIXTURES];
+const PLAYOFF_FIXTURES=[
+  {id:301,day:'Sunday',time:'2:30 pm',home:'2nd Pool A',away:'3rd Pool B',turf:1,round:'Q1'},
+  {id:302,day:'Sunday',time:'2:30 pm',home:'2nd Pool B',away:'3rd Pool A',turf:2,round:'Q2'},
+  {id:303,day:'Sunday',time:'3:30 pm',home:'1st Pool A',away:'Winner Q2',turf:1,round:'SF1'},
+  {id:304,day:'Sunday',time:'3:30 pm',home:'1st Pool B',away:'Winner Q1',turf:2,round:'SF2'},
+  {id:305,day:'Sunday',time:'5:30 pm',home:'Winner SF1',away:'Winner SF2',turf:1,round:'Final'},
+];
+const ALL_FIXTURES=[...PA_FIXTURES,...PB_FIXTURES,...PLAYOFF_FIXTURES];
 let results={},curPool='A';
 
 function n(v,dp=2){return v!=null?typeof v==='number'&&dp===0?v:Number(v).toFixed(dp):'<span class="na">—</span>';}
@@ -330,7 +338,7 @@ function renderSchedule(){
     const r=results[f.id],pool=POOL_OF[f.home];
     let rtag='<span class="result-tag r-ns">Not played</span>';
     if(r){if(team==='all')rtag=`<span class="result-tag r-w">${r.winner.replace('BB ','')}</span>`;else{const won=r.winner===team;rtag=`<span class="result-tag ${won?'r-w':'r-l'}">${won?'Won':'Lost'}${r.margin?' · '+r.margin:''}</span>`;}}
-    const ptag=team==='all'?`<span class="pool-tag ${pool==='A'?'pa-tag':'pb-tag'}">Pool ${pool}</span>`:'';
+    const ptag=team==='all'?(f.round?`<span class="playoff-tag">${f.round}</span>`:`<span class="pool-tag ${pool==='A'?'pa-tag':'pb-tag'}">Pool ${pool}</span>`):'';
     html+=`<div class="match-card"><div class="match-time">${f.time}</div><div class="match-teams">${f.home} <span class="vs"> vs </span>${f.away}</div><div class="match-meta"><span class="turf-tag t${f.turf}">Turf ${f.turf}</span>${ptag}${rtag}</div></div>`;
   });
   if(!html)html='<div class="empty">No matches found</div>';
