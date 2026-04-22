@@ -363,7 +363,7 @@ function renderSchedule(){
     if(f.day!==lastDay){lastDay=f.day;html+=`<div class="day-label">${f.day}</div>`;}
     const r=results[f.id],pool=POOL_OF[f.home];
     let rtag='<span class="result-tag r-ns">Not played</span>';
-    if(r){if(team==='all')rtag=`<span class="result-tag r-w">${r.winner.replace('BB ','')}</span>`;else{const won=r.winner===team;rtag=`<span class="result-tag ${won?'r-w':'r-l'}">${won?'Won':'Lost'}${r.margin?' · '+r.margin:''}</span>`;}}
+    if(r){if(team==='all')rtag=`<span class="result-tag r-w">${r.winner}</span>`;else{const won=r.winner===team;rtag=`<span class="result-tag ${won?'r-w':'r-l'}">${won?'Won':'Lost'}${r.margin?' · '+r.margin:''}</span>`;}}
     let ptag='';
     if(team==='all'){
       if(f.round)ptag=`<span class="playoff-tag">${f.round}</span>`;
@@ -429,7 +429,7 @@ function renderSquad(){
 
 function renderStandings(pool){
   curPool=pool;
-  document.getElementById('standings-list').innerHTML=getStandings(pool).map(([name,s],i)=>`<div class="s-row"><span class="s-pos ${i<2?'q':''}">${i+1}</span><span class="s-name">${name.replace('BB ','')}</span><span class="s-stat">${s.p}</span><span class="s-stat">${s.w}</span><span class="s-stat">${s.l}</span><span class="s-pts-val">${s.pts}</span></div>`).join('');
+  document.getElementById('standings-list').innerHTML=getStandings(pool).map(([name,s],i)=>`<div class="s-row"><span class="s-pos ${i<2?'q':''}">${i+1}</span><span class="s-name">${name}</span><span class="s-stat">${s.p}</span><span class="s-stat">${s.w}</span><span class="s-stat">${s.l}</span><span class="s-pts-val">${s.pts}</span></div>`).join('');
   const note=pool==='A'?'Top 2 advance. Pool A topper → SF1 vs Q2 winner. 2nd place → Q1 vs 3rd Pool B.':pool==='B'?'Top 2 advance. Pool B topper → SF2 vs Q1 winner. 2nd place → Q2 vs 3rd Pool A.':'Top 2 advance. 1st place → Ladies Final. 2nd & 3rd place → GSF1.';
   document.getElementById('qualify-note').textContent=note;
 }
@@ -453,7 +453,7 @@ function checkAdmin(){
 function populateMatchSelect(){
   const pool=document.getElementById('res-pool').value,fixtures=pool==='A'?PA_FIXTURES:PB_FIXTURES,sel=document.getElementById('res-match');
   sel.innerHTML='<option value="">Select match...</option>';
-  fixtures.forEach(f=>{sel.innerHTML+=`<option value="${f.id}">${f.day} ${f.time} | ${f.home.replace('BB ','')} vs ${f.away.replace('BB ','')}${results[f.id]?' ✓':''}</option>`;});
+  fixtures.forEach(f=>{sel.innerHTML+=`<option value="${f.id}">${f.day} ${f.time} | ${f.home} vs ${f.away}${results[f.id]?' ✓':''}</option>`;});
   document.getElementById('res-winner').innerHTML='<option value="">Select winner...</option>';
 }
 
@@ -478,7 +478,7 @@ function renderLog(){
   const wrap=document.getElementById('log-wrap'),entered=ALL_FIXTURES.filter(f=>results[f.id]);
   if(!entered.length){wrap.style.display='none';return;}
   wrap.style.display='block';
-  document.getElementById('log-list').innerHTML=entered.map(f=>{const r=results[f.id];return`<div class="log-row"><span class="log-match">${f.home.replace('BB ','')} vs ${f.away.replace('BB ','')}</span><span class="log-w">${r.winner.replace('BB ','')}${r.margin?' ('+r.margin+')':''}</span><button class="undo-btn" onclick="undoResult(${f.id})">undo</button></div>`;}).join('');
+  document.getElementById('log-list').innerHTML=entered.map(f=>{const r=results[f.id];return`<div class="log-row"><span class="log-match">${f.home} vs ${f.away}</span><span class="log-w">${r.winner}${r.margin?' ('+r.margin+')':''}</span><button class="undo-btn" onclick="undoResult(${f.id})">undo</button></div>`;}).join('');
 }
 
 renderSchedule();renderSquad();renderStandings('A');
