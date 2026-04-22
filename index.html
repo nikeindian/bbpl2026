@@ -49,8 +49,9 @@ select:focus,input:focus{border-color:#BA7517;box-shadow:0 0 0 2px rgba(186,117,
 .turf-tag{font-size:11px;padding:2px 8px;border-radius:20px;font-weight:600;}
 .t1{background:#E6F1FB;color:#0C447C;}.t2{background:#EAF3DE;color:#3B6D11;}.t3{background:#FAEEDA;color:#854F0B;}
 .pool-tag{font-size:10px;padding:2px 7px;border-radius:20px;font-weight:600;}
-.pa-tag{background:#EEEDFE;color:#3C3489;}.pb-tag{background:#E1F5EE;color:#085041;}
+.pa-tag{background:#EEEDFE;color:#3C3489;}.pb-tag{background:#E1F5EE;color:#085041;}.pw-tag{background:#FCE4EC;color:#880E4F;}
 .playoff-tag{font-size:10px;padding:2px 7px;border-radius:20px;font-weight:700;background:#1a1a2e;color:#EF9F27;}
+.women-tag{font-size:10px;padding:2px 7px;border-radius:20px;font-weight:700;background:#FCE4EC;color:#880E4F;}
 .result-tag{font-size:11px;padding:2px 8px;border-radius:20px;font-weight:600;margin-left:auto;}
 .r-w{background:var(--sbg);color:var(--stxt);}.r-l{background:var(--dbg);color:var(--dtxt);}.r-ns{background:var(--bg2);color:var(--text3);}
 
@@ -144,6 +145,13 @@ select:focus,input:focus{border-color:#BA7517;box-shadow:0 0 0 2px rgba(186,117,
             <option value="BB Dhurandhars">BB Dhurandhars (B6)</option>
             <option value="BB Super Kings">BB Super Kings (B7)</option>
           </optgroup>
+          <optgroup label="Women's">
+            <option value="BB Super Queens">BB Super Queens</option>
+            <option value="BB Smashers">BB Smashers</option>
+            <option value="BB Warriors">BB Warriors</option>
+            <option value="BB Mavericks">BB Mavericks</option>
+            <option value="BB Sunrisers">BB Sunrisers</option>
+          </optgroup>
         </select>
       </div>
       <div id="schedule-list"></div>
@@ -180,6 +188,7 @@ select:focus,input:focus{border-color:#BA7517;box-shadow:0 0 0 2px rgba(186,117,
       <div class="pool-tabs">
         <button class="pool-tab active" onclick="switchStandings('A',this)">Pool A</button>
         <button class="pool-tab" onclick="switchStandings('B',this)">Pool B</button>
+        <button class="pool-tab" onclick="switchStandings('W',this)">Women's</button>
       </div>
       <div class="std-hdr">
         <span style="width:22px"></span><span style="flex:1">Team</span>
@@ -225,7 +234,21 @@ select:focus,input:focus{border-color:#BA7517;box-shadow:0 0 0 2px rgba(186,117,
 <script>
 const PA=['BB Vikings','BB Bashers','BB Bro Squad','BB Maratha','BB United','BB Big Blasters','BB Devils'];
 const PB=['BB Giants','BB SG Legends','BB Gladiators','BB Game Changers','BB Yoddhas','BB Dhurandhars','BB Super Kings'];
-const POOL_OF={};PA.forEach(t=>POOL_OF[t]='A');PB.forEach(t=>POOL_OF[t]='B');
+const PW=['BB Super Queens','BB Smashers','BB Warriors','BB Mavericks','BB Sunrisers'];
+const POOL_OF={};PA.forEach(t=>POOL_OF[t]='A');PB.forEach(t=>POOL_OF[t]='B');PW.forEach(t=>POOL_OF[t]='W');
+const PW_FIXTURES=[
+  {id:401,day:'Saturday',time:'5:15 pm',home:'BB Super Queens',away:'BB Sunrisers',turf:1,gender:'W'},
+  {id:402,day:'Saturday',time:'5:15 pm',home:'BB Smashers',away:'BB Mavericks',turf:2,gender:'W'},
+  {id:403,day:'Saturday',time:'6:45 pm',home:'BB Smashers',away:'BB Warriors',turf:1,gender:'W'},
+  {id:404,day:'Saturday',time:'6:45 pm',home:'BB Mavericks',away:'BB Sunrisers',turf:2,gender:'W'},
+  {id:405,day:'Sunday',time:'9:45 am',home:'BB Super Queens',away:'BB Mavericks',turf:1,gender:'W'},
+  {id:406,day:'Sunday',time:'9:45 am',home:'BB Smashers',away:'BB Sunrisers',turf:2,gender:'W'},
+  {id:407,day:'Sunday',time:'11:15 am',home:'BB Warriors',away:'BB Sunrisers',turf:1,gender:'W'},
+  {id:408,day:'Sunday',time:'11:15 am',home:'BB Super Queens',away:'BB Smashers',turf:2,gender:'W'},
+  {id:409,day:'Sunday',time:'1:30 pm',home:'BB Warriors',away:'BB Mavericks',turf:1,gender:'W'},
+  {id:410,day:'Sunday',time:'2:30 pm',home:'2nd Girls',away:'3rd Girls',turf:3,gender:'W',round:'GSF1'},
+  {id:411,day:'Sunday',time:'4:30 pm',home:'1st Girls',away:'Winner GSF1',turf:2,gender:'W',round:'Ladies Final'},
+];
 
 const SQUADS={
   'BB Vikings':[['Vidyanand Joshi',380000],['Rohit Bhosale',70000],['Akkshay Kuware',31000],['Gaurav Pradeep Barve',120000],['Gurudatta Galvankar',150000],['Uttam Khamkar',115000],['Sameep Shevade',300000],['Rahul Samant',250000],['Deepak Teli',45000],['Nikhil Pargaonkar',30000]],
@@ -315,15 +338,17 @@ const PLAYOFF_FIXTURES=[
   {id:304,day:'Sunday',time:'3:30 pm',home:'1st Pool B',away:'Winner Q1',turf:2,round:'SF2'},
   {id:305,day:'Sunday',time:'5:30 pm',home:'Winner SF1',away:'Winner SF2',turf:1,round:'Final'},
 ];
-const ALL_FIXTURES=[...PA_FIXTURES,...PB_FIXTURES,...PLAYOFF_FIXTURES];
+const ALL_FIXTURES=[...PA_FIXTURES,...PB_FIXTURES,...PLAYOFF_FIXTURES,...PW_FIXTURES];
 let results={},curPool='A';
 
 function n(v,dp=2){return v!=null?typeof v==='number'&&dp===0?v:Number(v).toFixed(dp):'<span class="na">—</span>';}
 
 function getStandings(pool){
-  const teams=pool==='A'?PA:PB,fixtures=pool==='A'?PA_FIXTURES:PB_FIXTURES,s={};
+  const teams=pool==='A'?PA:pool==='B'?PB:PW;
+  const fixtures=pool==='A'?PA_FIXTURES:pool==='B'?PB_FIXTURES:PW_FIXTURES.filter(f=>!f.round);
+  const s={};
   teams.forEach(t=>s[t]={p:0,w:0,l:0,pts:0});
-  fixtures.forEach(f=>{const r=results[f.id];if(!r)return;s[f.home].p++;s[f.away].p++;if(r.winner===f.home){s[f.home].w++;s[f.home].pts+=2;s[f.away].l++;}else{s[f.away].w++;s[f.away].pts+=2;s[f.home].l++;}});
+  fixtures.forEach(f=>{const r=results[f.id];if(!r||!s[f.home])return;s[f.home].p++;s[f.away].p++;if(r.winner===f.home){s[f.home].w++;s[f.home].pts+=2;s[f.away].l++;}else{s[f.away].w++;s[f.away].pts+=2;s[f.home].l++;}});
   return Object.entries(s).sort((a,b)=>b[1].pts-a[1].pts||b[1].w-a[1].w);
 }
 
@@ -339,8 +364,13 @@ function renderSchedule(){
     const r=results[f.id],pool=POOL_OF[f.home];
     let rtag='<span class="result-tag r-ns">Not played</span>';
     if(r){if(team==='all')rtag=`<span class="result-tag r-w">${r.winner.replace('BB ','')}</span>`;else{const won=r.winner===team;rtag=`<span class="result-tag ${won?'r-w':'r-l'}">${won?'Won':'Lost'}${r.margin?' · '+r.margin:''}</span>`;}}
-    const ptag=team==='all'?(f.round?`<span class="playoff-tag">${f.round}</span>`:`<span class="pool-tag ${pool==='A'?'pa-tag':'pb-tag'}">Pool ${pool}</span>`):'';
-    html+=`<div class="match-card"><div class="match-time">${f.time}</div><div class="match-teams">${f.home} <span class="vs"> vs </span>${f.away}</div><div class="match-meta"><span class="turf-tag t${f.turf}">Turf ${f.turf}</span>${ptag}${rtag}</div></div>`;
+    let ptag='';
+    if(team==='all'){
+      if(f.round)ptag=`<span class="playoff-tag">${f.round}</span>`;
+      else if(f.gender==='W')ptag=`<span class="women-tag">Women's</span>`;
+      else ptag=`<span class="pool-tag ${pool==='A'?'pa-tag':'pb-tag'}">Pool ${pool}</span>`;
+    }
+    html+=`<div class="match-card"><div class="match-time">${f.time}</div><div class="match-teams">${f.home.replace('BB ','')} <span class="vs"> vs </span>${f.away.replace('BB ','')}</div><div class="match-meta"><span class="turf-tag t${f.turf}">Turf ${f.turf}</span>${ptag}${rtag}</div></div>`;
   });
   if(!html)html='<div class="empty">No matches found</div>';
   document.getElementById('schedule-list').innerHTML=html;
@@ -400,7 +430,8 @@ function renderSquad(){
 function renderStandings(pool){
   curPool=pool;
   document.getElementById('standings-list').innerHTML=getStandings(pool).map(([name,s],i)=>`<div class="s-row"><span class="s-pos ${i<2?'q':''}">${i+1}</span><span class="s-name">${name.replace('BB ','')}</span><span class="s-stat">${s.p}</span><span class="s-stat">${s.w}</span><span class="s-stat">${s.l}</span><span class="s-pts-val">${s.pts}</span></div>`).join('');
-  document.getElementById('qualify-note').textContent=pool==='A'?'Top 2 advance. Pool A topper → SF1 vs Q2 winner. 2nd place → Q1 vs 3rd Pool B.':'Top 2 advance. Pool B topper → SF2 vs Q1 winner. 2nd place → Q2 vs 3rd Pool A.';
+  const note=pool==='A'?'Top 2 advance. Pool A topper → SF1 vs Q2 winner. 2nd place → Q1 vs 3rd Pool B.':pool==='B'?'Top 2 advance. Pool B topper → SF2 vs Q1 winner. 2nd place → Q2 vs 3rd Pool A.':'Top 2 advance. 1st place → Ladies Final. 2nd & 3rd place → GSF1.';
+  document.getElementById('qualify-note').textContent=note;
 }
 
 function switchStandings(pool,btn){document.querySelectorAll('#tab-standings .pool-tab').forEach(b=>b.classList.remove('active'));btn.classList.add('active');renderStandings(pool);}
