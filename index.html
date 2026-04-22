@@ -370,7 +370,7 @@ function renderSchedule(){
       else if(f.gender==='W')ptag=`<span class="women-tag">Women's</span>`;
       else ptag=`<span class="pool-tag ${pool==='A'?'pa-tag':'pb-tag'}">Pool ${pool}</span>`;
     }
-    html+=`<div class="match-card"><div class="match-time">${f.time}</div><div class="match-teams">${f.home.replace('BB ','')} <span class="vs"> vs </span>${f.away.replace('BB ','')}</div><div class="match-meta"><span class="turf-tag t${f.turf}">Turf ${f.turf}</span>${ptag}${rtag}</div></div>`;
+    html+=`<div class="match-card"><div class="match-time">${f.time}</div><div class="match-teams">${f.home} <span class="vs"> vs </span>${f.away}</div><div class="match-meta"><span class="turf-tag t${f.turf}">Turf ${f.turf}</span>${ptag}${rtag}</div></div>`;
   });
   if(!html)html='<div class="empty">No matches found</div>';
   document.getElementById('schedule-list').innerHTML=html;
