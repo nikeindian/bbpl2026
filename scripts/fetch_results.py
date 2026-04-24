@@ -149,50 +149,82 @@ def canon_women(raw: str, home: str, away: str) -> str | None:
 
 
 # ── Auto-discover men's matches from tournament page ───────────────────────
+TOURNEY_SLUG = 'beyond-boundaries-2026-championship-vp-male'
+TOURNEY_ID   = 1982024
+TABS = ['upcoming-matches', 'live-matches', 'completed-matches']
+
+ID_PAT = re.compile(
+    rf'/scorecard/(\d+)/{re.escape(TOURNEY_SLUG)}/([^/"\']+)'
+)
+
+async def _scroll_and_extract(page, url: str) -> set[tuple[int,str]]:
+    """Load a tab page, scroll until no new IDs appear, return set of (ch_id, slug)."""
+    print(f'  Loading: {url}')
+    try:
+        await page.goto(url, wait_until='domcontentloaded', timeout=40_000)
+        await page.wait_for_timeout(5_000)
+    except Exception as e:
+        print(f'  ✗ load error: {e}')
+        return set()
+
+    seen: set[tuple[int,str]] = set()
+    for attempt in range(20):
+        # Extract match IDs from raw HTML (catches links, JS strings, data attrs)
+        html = await page.content()
+        for m in ID_PAT.finditer(html):
+            seen.add((int(m.group(1)), m.group(2)))
+
+        prev_count = len(seen)
+
+        # Scroll to bottom to trigger infinite scroll
+        await page.evaluate('window.scrollTo(0, document.body.scrollHeight)')
+        await page.wait_for_timeout(2_000)
+
+        # Also try clicking any visible "load more" style button
+        for btn_text in ['Load more', 'LOAD MORE', 'Load More', 'Show more']:
+            try:
+                btn = page.get_by_text(btn_text, exact=False).first
+                if await btn.is_visible(timeout=500):
+                    await btn.click()
+                    await page.wait_for_timeout(2_000)
+            except Exception:
+                pass
+
+        # Re-extract after scroll
+        html = await page.content()
+        for m in ID_PAT.finditer(html):
+            seen.add((int(m.group(1)), m.group(2)))
+
+        if len(seen) == prev_count and attempt >= 2:
+            break  # No new content loaded
+
+    print(f'  found {len(seen)} match IDs on this tab')
+    return seen
+
+
 async def discover_men_matches(page) -> list[dict]:
     """
-    Load the tournament matches page, click 'Load more' until all 42
-    matches are visible, then extract match IDs + team names and map
-    them to fixture IDs.
+    Check upcoming / live / completed tabs, scroll each to get all IDs,
+    then map slugs → fixture IDs.
     """
-    url = ('https://cricheroes.com/tournament/1982024/'
-           'beyond-boundaries-2026-championship-vp-male/matches/upcoming-matches')
-    print(f'Discovering men\'s matches from tournament page...')
-    await page.goto(url, wait_until='domcontentloaded', timeout=40_000)
-    await page.wait_for_timeout(4_000)
+    print('Discovering men\'s matches...')
+    all_pairs: set[tuple[int,str]] = set()
 
-    # Click 'Load more' until all matches are visible or button disappears
-    for _ in range(10):
-        try:
-            btn = page.locator('text=/load more/i').first
-            if await btn.is_visible(timeout=3_000):
-                await btn.click()
-                await page.wait_for_timeout(2_000)
-            else:
-                break
-        except Exception:
-            break
+    base = f'https://cricheroes.com/tournament/{TOURNEY_ID}/{TOURNEY_SLUG}/matches'
+    for tab in TABS:
+        pairs = await _scroll_and_extract(page, f'{base}/{tab}')
+        all_pairs |= pairs
 
-    # Extract all scorecard links
-    links = await page.eval_on_selector_all(
-        'a[href*="/scorecard/"]',
-        'els => els.map(e => e.href)'
-    )
+    print(f'  total unique match IDs found across all tabs: {len(all_pairs)}')
 
     discovered = []
-    seen_ch = set()
-    pat = re.compile(r'/scorecard/(\d+)/beyond-boundaries-2026-championship-vp-male/([^/]+)/.*')
+    seen_ch: set[int] = set()
 
-    for href in links:
-        m = pat.search(href)
-        if not m:
-            continue
-        ch_id = int(m.group(1))
+    for ch_id, slug in all_pairs:
         if ch_id in seen_ch:
             continue
         seen_ch.add(ch_id)
 
-        slug = m.group(2)  # e.g. "bb-devils-vs-bb-vikings"
         parts = slug.split('-vs-')
         if len(parts) != 2:
             continue
@@ -206,12 +238,12 @@ async def discover_men_matches(page) -> list[dict]:
 
         fid = FIXTURE_BY_TEAMS.get(frozenset([t1, t2]))
         if not fid:
-            print(f'  ? no fixture found for {t1} vs {t2}')
+            print(f'  ? no fixture for {t1} vs {t2}')
             continue
 
         discovered.append({'ch': ch_id, 'fid': fid, 'home': t1, 'away': t2})
 
-    print(f'  discovered {len(discovered)} men\'s matches (expected 42)')
+    print(f'  mapped {len(discovered)} matches to fixture IDs (expected 42)')
     return discovered
 
 
