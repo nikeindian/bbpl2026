@@ -42,7 +42,7 @@ jobs:
         run: |
           git config user.name  "Results Bot"
           git config user.email "action@github.com"
-          git add results.json scripts/men_matches.json
+          git add results.json scripts/men_matches.json points_table.json
           # Only commit if something actually changed
           git diff --staged --quiet || git commit -m "chore: update match results [skip ci]"
           git push

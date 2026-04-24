@@ -296,15 +296,76 @@ async def scrape_result(page, match: dict, aliases: dict) -> dict | None:
     return None
 
 
+# ── Scrape points table from tournament page ───────────────────────────────
+POINTS_TABLE_URLS = {
+    'men_A':   f'https://cricheroes.com/tournament/{TOURNEY_ID}/{TOURNEY_SLUG}/point-table',
+    'men_B':   f'https://cricheroes.com/tournament/{TOURNEY_ID}/{TOURNEY_SLUG}/point-table',
+    'women':   'https://cricheroes.com/tournament/1984469/beyond-boundaries-2026-championship-female-/point-table',
+}
+
+async def scrape_points_table(page) -> dict:
+    """
+    Scrape NRR for each team from CricHeroes points table pages.
+    Returns {canonical_team_name: nrr_string}
+    """
+    print('\n── POINTS TABLE ─────────────────────────────')
+    nrr_map = {}
+
+    for label, url in POINTS_TABLE_URLS.items():
+        if label == 'men_B':
+            continue  # same page as men_A, already loaded
+        print(f'  Loading {label}: {url}')
+        try:
+            await page.goto(url, wait_until='domcontentloaded', timeout=40_000)
+            await page.wait_for_timeout(5_000)
+            body = await page.evaluate('document.body.innerText')
+        except Exception as e:
+            print(f'  ✗ load error: {e}')
+            continue
+
+        # CricHeroes table rows typically look like:
+        # "Team Name  P  W  L  NRR  Pts"
+        # NRR is a signed decimal like +0.450 or -1.234
+        nrr_pat = re.compile(
+            r'([A-Za-z][\w\s\-]+?)\s+\d+\s+\d+\s+\d+\s+([+\-]\d+\.\d+)',
+            re.MULTILINE
+        )
+        aliases = MEN_ALIASES if label == 'men_A' else WOMEN_ALIASES
+        found = 0
+        for m in nrr_pat.finditer(body):
+            raw_name = m.group(1).strip()
+            nrr      = m.group(2).strip()
+            canonical = aliases.get(raw_name.lower().strip())
+            if not canonical:
+                # fuzzy: find closest canonical team
+                for alias_key, canon in aliases.items():
+                    if alias_key in raw_name.lower():
+                        canonical = canon
+                        break
+            if canonical:
+                nrr_map[canonical] = nrr
+                found += 1
+                print(f'    {canonical}: NRR {nrr}')
+        print(f'  found NRR for {found} teams on this page')
+
+    return nrr_map
+
+
 # ── Main ────────────────────────────────────────────────────────────────────
 async def main():
     results_path  = ROOT / 'results.json'
     men_cache     = ROOT / 'scripts' / 'men_matches.json'
+    pts_path      = ROOT / 'points_table.json'
 
     try:
         results: dict = json.loads(results_path.read_text()) if results_path.exists() else {}
     except Exception:
         results = {}
+
+    try:
+        pts_table: dict = json.loads(pts_path.read_text()) if pts_path.exists() else {}
+    except Exception:
+        pts_table = {}
 
     changed = False
 
@@ -348,11 +409,19 @@ async def main():
                     results[fid] = result
                     changed = True
 
+        # ── Scrape points table (NRR) ──────────────────────────────────────
+        new_nrr = await scrape_points_table(pg)
+        if new_nrr and new_nrr != pts_table:
+            pts_table = new_nrr
+            changed = True
+
         await browser.close()
 
     if changed:
         results_path.write_text(json.dumps(results, indent=2))
         print(f'\nWrote results.json  ({len(results)} total results)')
+        pts_path.write_text(json.dumps(pts_table, indent=2))
+        print(f'Wrote points_table.json ({len(pts_table)} teams)')
     else:
         print('\nNo changes — results.json unchanged.')
 

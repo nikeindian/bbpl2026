@@ -90,6 +90,8 @@ select:focus,input:focus{border-color:#BA7517;box-shadow:0 0 0 2px rgba(186,117,
 .s-pos.q{color:#BA7517;}
 .s-name{flex:1;font-weight:600;color:var(--text);font-size:13px;}
 .s-stat{width:28px;text-align:center;color:var(--text);font-size:13px;}
+.s-nrr{width:46px;text-align:center;font-size:11px;color:var(--text2);font-variant-numeric:tabular-nums;}
+.s-nrr-na{color:var(--text3);}
 .s-pts-val{width:28px;text-align:right;font-size:14px;font-weight:700;color:#BA7517;}
 .qualify-note{font-size:12px;color:var(--text2);margin-top:12px;padding:9px 12px;background:var(--bg2);border-radius:8px;line-height:1.5;}
 
@@ -192,7 +194,7 @@ select:focus,input:focus{border-color:#BA7517;box-shadow:0 0 0 2px rgba(186,117,
       <div class="std-hdr">
         <span style="width:22px"></span><span style="flex:1">Team</span>
         <span style="width:28px;text-align:center">P</span><span style="width:28px;text-align:center">W</span>
-        <span style="width:28px;text-align:center">L</span><span style="width:28px;text-align:right">Pts</span>
+        <span style="width:28px;text-align:center">L</span><span style="width:46px;text-align:center">NRR</span><span style="width:28px;text-align:right">Pts</span>
       </div>
       <div id="standings-list"></div>
       <div class="qualify-note" id="qualify-note"></div>
@@ -426,12 +428,23 @@ async function loadMenMatchUrls(){
   }catch(e){}
 }
 
-let results={},curPool='A';
+let results={},nrrData={},curPool='A';
+
+async function loadPointsTable(){
+  try{
+    const res=await fetch('points_table.json?t='+Date.now());
+    if(res.ok) nrrData=await res.json();
+  }catch(e){}
+}
 
 async function refreshResults(){
   try{
     const res=await fetch('results.json?t='+Date.now());
     if(res.ok){const remote=await res.json();results={...remote};}
+  }catch(e){}
+  try{
+    const res2=await fetch('points_table.json?t='+Date.now());
+    if(res2.ok) nrrData=await res2.json();
   }catch(e){}
   renderSchedule();renderStandings(curPool);
 }
@@ -443,9 +456,15 @@ function getStandings(pool){
   const teams=pool==='A'?PA:pool==='B'?PB:PW;
   const fixtures=pool==='A'?PA_FIXTURES:pool==='B'?PB_FIXTURES:PW_FIXTURES.filter(f=>!f.round);
   const s={};
-  teams.forEach(t=>s[t]={p:0,w:0,l:0,pts:0});
+  teams.forEach(t=>s[t]={p:0,w:0,l:0,pts:0,nrr:nrrData[t]||null});
   fixtures.forEach(f=>{const r=results[f.id];if(!r||!s[f.home])return;s[f.home].p++;s[f.away].p++;if(r.winner===f.home){s[f.home].w++;s[f.home].pts+=2;s[f.away].l++;}else{s[f.away].w++;s[f.away].pts+=2;s[f.home].l++;}});
-  return Object.entries(s).sort((a,b)=>b[1].pts-a[1].pts||b[1].w-a[1].w);
+  // Sort by pts, then NRR (from CricHeroes if available), then wins
+  return Object.entries(s).sort((a,b)=>{
+    if(b[1].pts!==a[1].pts) return b[1].pts-a[1].pts;
+    const na=parseFloat(a[1].nrr)||0, nb=parseFloat(b[1].nrr)||0;
+    if(nb!==na) return nb-na;
+    return b[1].w-a[1].w;
+  });
 }
 
 function renderSchedule(){
@@ -534,7 +553,10 @@ function renderSquad(){
 
 function renderStandings(pool){
   curPool=pool;
-  document.getElementById('standings-list').innerHTML=getStandings(pool).map(([name,s],i)=>`<div class="s-row"><span class="s-pos ${i<2?'q':''}">${i+1}</span><span class="s-name">${name}</span><span class="s-stat">${s.p}</span><span class="s-stat">${s.w}</span><span class="s-stat">${s.l}</span><span class="s-pts-val">${s.pts}</span></div>`).join('');
+  document.getElementById('standings-list').innerHTML=getStandings(pool).map(([name,s],i)=>{
+    const nrr=s.nrr!=null?`<span class="s-nrr">${s.nrr}</span>`:`<span class="s-nrr s-nrr-na">—</span>`;
+    return`<div class="s-row"><span class="s-pos ${i<2?'q':''}">${i+1}</span><span class="s-name">${name}</span><span class="s-stat">${s.p}</span><span class="s-stat">${s.w}</span><span class="s-stat">${s.l}</span>${nrr}<span class="s-pts-val">${s.pts}</span></div>`;
+  }).join('');
   const note=pool==='A'?'Top 2 advance. Pool A topper → SF1 vs Q2 winner. 2nd place → Q1 vs 3rd Pool B.':pool==='B'?'Top 2 advance. Pool B topper → SF2 vs Q1 winner. 2nd place → Q2 vs 3rd Pool A.':'Top 2 advance. 1st place → Ladies Final. 2nd & 3rd place → GSF1.';
   document.getElementById('qualify-note').textContent=note;
 }
@@ -587,8 +609,8 @@ function renderLog(){
 }
 
 renderSquad();renderStandings('A');
-// Load discovered men's match URLs first, then fetch results and render schedule
-loadMenMatchUrls().then(()=>refreshResults());
+// Load match URLs + points table first, then fetch results
+Promise.all([loadMenMatchUrls(),loadPointsTable()]).then(()=>refreshResults());
 </script>
 </body>
 </html>
