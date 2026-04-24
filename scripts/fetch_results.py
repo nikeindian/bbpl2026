@@ -241,7 +241,7 @@ async def discover_men_matches(page) -> list[dict]:
             print(f'  ? no fixture for {t1} vs {t2}')
             continue
 
-        discovered.append({'ch': ch_id, 'fid': fid, 'home': t1, 'away': t2})
+        discovered.append({'ch': ch_id, 'fid': fid, 'home': t1, 'away': t2, 'slug': slug})
 
     print(f'  mapped {len(discovered)} matches to fixture IDs (expected 42)')
     return discovered

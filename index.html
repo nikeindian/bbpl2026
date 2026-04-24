@@ -377,8 +377,24 @@ const MATCH_URLS={
   204:'https://cricheroes.com/scorecard/24207543/beyond-boundaries-2026-championship-vp-male/bb-giants-vs-bb-team-game-changers/upcoming',
   205:'https://cricheroes.com/scorecard/24201789/beyond-boundaries-2026-championship-vp-male/bb-sg-legends-vs-bb-super-kings/upcoming',
   206:'https://cricheroes.com/scorecard/24207659/beyond-boundaries-2026-championship-vp-male/bb-dhurandars-vs-bb-yoddhas/upcoming',
-  // remaining 30 men's match URLs auto-discovered by GitHub Actions on first run
+  // remaining men's match URLs loaded dynamically from scripts/men_matches.json
 };
+
+const MEN_TOURNEY_SLUG='beyond-boundaries-2026-championship-vp-male';
+
+// Load discovered men's match IDs and add their scorecard URLs
+async function loadMenMatchUrls(){
+  try{
+    const res=await fetch('scripts/men_matches.json?t='+Date.now());
+    if(!res.ok)return;
+    const men=await res.json();
+    men.forEach(m=>{
+      if(m.fid&&m.ch&&m.slug&&!MATCH_URLS[m.fid]){
+        MATCH_URLS[m.fid]=`https://cricheroes.com/scorecard/${m.ch}/${MEN_TOURNEY_SLUG}/${m.slug}/upcoming`;
+      }
+    });
+  }catch(e){}
+}
 
 let results={},curPool='A';
 
@@ -540,7 +556,9 @@ function renderLog(){
   document.getElementById('log-list').innerHTML=entered.map(f=>{const r=results[f.id];return`<div class="log-row"><span class="log-match">${f.home} vs ${f.away}</span><span class="log-w">${r.winner}${r.margin?' ('+r.margin+')':''}</span><button class="undo-btn" onclick="undoResult(${f.id})">undo</button></div>`;}).join('');
 }
 
-renderSquad();renderStandings('A');refreshResults();
+renderSquad();renderStandings('A');
+// Load discovered men's match URLs first, then fetch results and render schedule
+loadMenMatchUrls().then(()=>refreshResults());
 </script>
 </body>
 </html>
