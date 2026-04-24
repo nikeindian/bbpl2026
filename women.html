@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>BBPL 2026 — Women's Tournament</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --bg:#fff;--bg2:#f5f5f0;--bg3:#eee;
+  --text:#1a1a1a;--text2:#666;--text3:#999;
+  --border:rgba(0,0,0,0.12);--border2:rgba(0,0,0,0.22);
+  --sbg:#eaf3de;--stxt:#3b6d11;--dbg:#fcebeb;--dtxt:#a32d2d;--wbg:#faeeda;--wtxt:#854f0b;
+  --accent:#880E4F;--accent2:#6A0A4B;
+}
+@media(prefers-color-scheme:dark){:root{
+  --bg:#1e1e1e;--bg2:#2a2a2a;--bg3:#333;--text:#f0f0f0;--text2:#aaa;--text3:#777;
+  --border:rgba(255,255,255,0.12);--border2:rgba(255,255,255,0.22);
+  --sbg:#27500a;--stxt:#c0dd97;--dbg:#501313;--dtxt:#f09595;--wbg:#633806;--wtxt:#fac775;
+}}
+html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:var(--bg3);color:var(--text);}
+.shell{max-width:520px;margin:0 auto;min-height:100vh;background:var(--bg);display:flex;flex-direction:column;}
+.top-bar{background:#6A0A4B;padding:14px 16px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;}
+.top-bar-title{color:#fff;font-size:16px;font-weight:600;}
+.top-bar-sub{color:rgba(255,255,255,0.55);font-size:11px;margin-top:2px;}
+.back-link{color:rgba(255,255,255,0.75);font-size:11px;text-decoration:none;display:flex;align-items:center;gap:4px;white-space:nowrap;flex-shrink:0;padding:4px 0;}
+.back-link:hover{color:#fff;}
+.bb-logo{width:44px;height:44px;border-radius:50%;overflow:hidden;flex-shrink:0;display:flex;align-items:center;justify-content:center;}
+.bb-logo img{width:100%;height:100%;object-fit:cover;}
+.nav{display:flex;border-bottom:0.5px solid var(--border);background:var(--bg);flex-shrink:0;position:sticky;top:0;z-index:10;}
+.nav-btn{flex:1;padding:12px 4px;font-size:12px;font-weight:500;color:var(--text2);background:none;border:none;cursor:pointer;border-bottom:2px solid transparent;}
+.nav-btn.active{color:#880E4F;border-bottom-color:#880E4F;}
+.content{flex:1;}
+.section{display:none;padding:16px;}
+.section.active{display:block;}
+label{font-size:12px;color:var(--text2);display:block;margin-bottom:5px;}
+select,input[type=text],input[type=password]{width:100%;padding:10px 12px;border:0.5px solid var(--border2);border-radius:8px;background:var(--bg);color:var(--text);font-size:14px;outline:none;-webkit-appearance:none;appearance:none;}
+select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23999' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;padding-right:32px;}
+select:focus,input:focus{border-color:#880E4F;box-shadow:0 0 0 2px rgba(136,14,79,0.15);}
+.field-wrap{margin-bottom:14px;}
+.day-label{font-size:11px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:.07em;margin:14px 0 7px;}
+.day-label:first-child{margin-top:0;}
+.match-card{border:0.5px solid var(--border);border-radius:10px;padding:11px 13px;margin-bottom:8px;background:var(--bg);}
+.match-time{font-size:11px;color:var(--text3);margin-bottom:3px;}
+.match-teams{font-size:14px;font-weight:600;color:var(--text);line-height:1.4;}
+.vs{color:var(--text3);font-weight:400;}
+.match-meta{display:flex;gap:8px;margin-top:7px;align-items:center;flex-wrap:wrap;}
+.turf-tag{font-size:11px;padding:2px 8px;border-radius:20px;font-weight:600;}
+.t1{background:#E6F1FB;color:#0C447C;}.t2{background:#EAF3DE;color:#3B6D11;}.t3{background:#FAEEDA;color:#854F0B;}
+.playoff-tag{font-size:10px;padding:2px 7px;border-radius:20px;font-weight:700;background:#FCE4EC;color:#880E4F;}
+.result-tag{font-size:11px;padding:2px 8px;border-radius:20px;font-weight:600;margin-left:auto;}
+.scorecard-btn{font-size:11px;padding:2px 9px;border-radius:20px;font-weight:600;background:#F8E4F0;color:#880E4F;text-decoration:none;border:1px solid #F48FB1;white-space:nowrap;flex-shrink:0;}
+.scorecard-btn:hover{background:#F8BBD9;}
+.r-w{background:var(--sbg);color:var(--stxt);}.r-l{background:var(--dbg);color:var(--dtxt);}.r-ns{background:var(--bg2);color:var(--text3);}
+
+/* Squad */
+.squad-top{display:flex;align-items:center;gap:12px;margin-bottom:14px;padding-bottom:12px;border-bottom:0.5px solid var(--border);}
+.squad-avatar{width:44px;height:44px;border-radius:50%;background:#FCE4EC;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#880E4F;flex-shrink:0;}
+.squad-title{font-size:16px;font-weight:600;color:var(--text);}
+.squad-sub{font-size:12px;color:var(--text2);margin-top:2px;}
+
+/* Stats table */
+.table-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch;}
+.stats-table{width:100%;border-collapse:collapse;font-size:12px;min-width:380px;}
+.stats-table thead tr:first-child th{font-size:9px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.05em;padding:4px 8px 2px;border-bottom:none;text-align:center;}
+.stats-table thead tr:first-child th:first-child{text-align:left;}
+.stats-table thead tr:last-child th{font-size:9px;font-weight:600;color:var(--text3);padding:2px 8px 6px;border-bottom:0.5px solid var(--border);text-align:center;}
+.stats-table thead tr:last-child th:first-child{text-align:left;}
+.group-batting{background:rgba(234,243,222,0.4);}
+.group-bowling{background:rgba(230,241,251,0.4);}
+.stats-table tbody tr{border-bottom:0.5px solid var(--border);}
+.stats-table tbody tr:last-child{border-bottom:none;}
+.stats-table td{padding:9px 8px;vertical-align:middle;text-align:center;color:var(--text);font-variant-numeric:tabular-nums;}
+.stats-table td:first-child{text-align:left;font-weight:500;font-size:13px;white-space:nowrap;padding-right:12px;}
+.na{color:var(--text3);}
+.mvp-badge{display:inline-block;background:#FCE4EC;color:#880E4F;font-size:9px;font-weight:700;padding:1px 5px;border-radius:10px;margin-left:4px;vertical-align:middle;}
+
+/* Standings */
+.std-hdr{display:flex;font-size:11px;color:var(--text3);padding:0 0 7px;border-bottom:0.5px solid var(--border);margin-bottom:2px;}
+.s-row{display:flex;align-items:center;padding:10px 0;border-bottom:0.5px solid var(--border);}
+.s-row:last-child{border-bottom:none;}
+.s-pos{width:22px;font-weight:600;color:var(--text2);flex-shrink:0;font-size:13px;}
+.s-pos.q{color:#880E4F;}
+.s-name{flex:1;font-weight:600;color:var(--text);font-size:13px;}
+.s-stat{width:28px;text-align:center;color:var(--text);font-size:13px;}
+.s-pts-val{width:28px;text-align:right;font-size:14px;font-weight:700;color:#880E4F;}
+.qualify-note{font-size:12px;color:var(--text2);margin-top:12px;padding:9px 12px;background:var(--bg2);border-radius:8px;line-height:1.5;}
+.scroll-hint{font-size:11px;color:var(--text3);text-align:right;margin-bottom:6px;}
+.empty{text-align:center;padding:40px 20px;color:var(--text3);font-size:13px;}
+@media(min-width:520px){.shell{box-shadow:0 0 40px rgba(0,0,0,0.1);}.scroll-hint{display:none;}}
+</style>
+</head>
+<body>
+<div class="shell">
+  <div class="top-bar">
+    <div>
+      <div class="top-bar-title">BB Women's Tournament 2026</div>
+      <div class="top-bar-sub">April 25–26 &nbsp;·&nbsp; MKB Ghatkopar</div>
+    </div>
+    <a href="index.html" class="back-link">
+      <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M7.5 2L3.5 6l4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      Men's
+    </a>
+  </div>
+  <nav class="nav">
+    <button class="nav-btn active" onclick="showTab('schedule',this)">Schedule</button>
+    <button class="nav-btn" onclick="showTab('squad',this)">Squads</button>
+    <button class="nav-btn" onclick="showTab('standings',this)">Standings</button>
+  </nav>
+  <div class="content">
+
+    <div id="tab-schedule" class="section active">
+      <div class="field-wrap">
+        <label>Filter by team</label>
+        <select id="team-filter" onchange="renderSchedule()">
+          <option value="all">All matches</option>
+          <option value="BB Super Queens">BB Super Queens</option>
+          <option value="BB Smashers">BB Smashers</option>
+          <option value="BB Warriors">BB Warriors</option>
+          <option value="BB Mavericks">BB Mavericks</option>
+          <option value="BB Sunrisers">BB Sunrisers</option>
+        </select>
+      </div>
+      <div id="schedule-list"></div>
+    </div>
+
+    <div id="tab-squad" class="section">
+      <div class="field-wrap">
+        <label>Select team</label>
+        <select id="squad-select" onchange="renderSquad()">
+          <option value="BB Super Queens">BB Super Queens</option>
+          <option value="BB Smashers">BB Smashers</option>
+          <option value="BB Warriors">BB Warriors</option>
+          <option value="BB Mavericks">BB Mavericks</option>
+          <option value="BB Sunrisers">BB Sunrisers</option>
+        </select>
+      </div>
+      <div id="squad-display"></div>
+    </div>
+
+    <div id="tab-standings" class="section">
+      <div class="std-hdr">
+        <span style="width:22px"></span><span style="flex:1">Team</span>
+        <span style="width:28px;text-align:center">P</span><span style="width:28px;text-align:center">W</span>
+        <span style="width:28px;text-align:center">L</span><span style="width:28px;text-align:right">Pts</span>
+      </div>
+      <div id="standings-list"></div>
+      <div class="qualify-note" id="qualify-note"></div>
+    </div>
+
+  </div>
+</div>
+<script>
+const PW=['BB Super Queens','BB Smashers','BB Warriors','BB Mavericks','BB Sunrisers'];
+
+const PW_FIXTURES=[
+  {id:401,day:'Saturday',time:'5:15 pm',home:'BB Super Queens',away:'BB Sunrisers',turf:3},
+  {id:402,day:'Saturday',time:'5:15 pm',home:'BB Smashers',away:'BB Mavericks',turf:2},
+  {id:403,day:'Saturday',time:'6:45 pm',home:'BB Smashers',away:'BB Warriors',turf:3},
+  {id:404,day:'Saturday',time:'6:45 pm',home:'BB Mavericks',away:'BB Sunrisers',turf:2},
+  {id:412,day:'Saturday',time:'9:00 pm',home:'BB Super Queens',away:'BB Warriors',turf:1},
+  {id:405,day:'Sunday',time:'9:45 am',home:'BB Super Queens',away:'BB Mavericks',turf:3},
+  {id:406,day:'Sunday',time:'9:45 am',home:'BB Smashers',away:'BB Sunrisers',turf:2},
+  {id:407,day:'Sunday',time:'11:15 am',home:'BB Warriors',away:'BB Sunrisers',turf:3},
+  {id:408,day:'Sunday',time:'11:15 am',home:'BB Super Queens',away:'BB Smashers',turf:2},
+  {id:409,day:'Sunday',time:'1:30 pm',home:'BB Warriors',away:'BB Mavericks',turf:3},
+  {id:410,day:'Sunday',time:'2:30 pm',home:'2nd Place',away:'3rd Place',turf:1,round:'GSF1'},
+  {id:411,day:'Sunday',time:'4:30 pm',home:'1st Place',away:'Winner GSF1',turf:1,round:'Ladies Final'},
+];
+
+const MATCH_URLS={
+  401:'https://cricheroes.com/scorecard/24201967/beyond-boundaries-2026-championship-female-/bb-sunrisers-vs-bb-super-queens/upcoming',
+  402:'https://cricheroes.com/scorecard/24201949/beyond-boundaries-2026-championship-female-/bb-mavericks-vs-bb-smashers/upcoming',
+  403:'https://cricheroes.com/scorecard/24201994/beyond-boundaries-2026-championship-female-/bb-smashers-vs-bb-warriors/upcoming',
+  404:'https://cricheroes.com/scorecard/24201980/beyond-boundaries-2026-championship-female-/bb-sunrisers-vs-bb-mavericks/upcoming',
+  405:'https://cricheroes.com/scorecard/24202038/beyond-boundaries-2026-championship-female-/bb-mavericks-vs-bb-super-queens/upcoming',
+  406:'https://cricheroes.com/scorecard/24202026/beyond-boundaries-2026-championship-female-/bb-sunrisers-vs-bb-smashers/upcoming',
+  407:'https://cricheroes.com/scorecard/24202076/beyond-boundaries-2026-championship-female-/bb-sunrisers-vs-bb-warriors/upcoming',
+  408:'https://cricheroes.com/scorecard/24202060/beyond-boundaries-2026-championship-female-/bb-super-queens-vs-bb-smashers/upcoming',
+  409:'https://cricheroes.com/scorecard/24202095/beyond-boundaries-2026-championship-female-/bb-mavericks-vs-bb-warriors/upcoming',
+  412:'https://cricheroes.com/scorecard/24202006/beyond-boundaries-2026-championship-female-/bb-super-queens-vs-bb-warriors/upcoming',
+};
+
+const SQUADS={
+  'BB Super Queens':[['Sangeeta Jadhav',210000],['Swati Pingat',10000],['Vrushali Mestry',80000],['Sunita Shinde',38000],['Sayali Hardikar',20000],['Kshitee Godse',280000],['Charuta Thatte',290000],['Sneha Barve',105000],['Mrunalini S Sawant',12000],['Jyoti Palav',10000]],
+  'BB Smashers':[['Sheetal Sahasrabudhe',200000],['Mukta Karve',120000],['Pradnya Patil',10000],['Leena Ranade',280000],['Nupura Patil',18000],['Rohini Ravindra Gaikwad',10000],['Prerna',12000],['Akshada Balse',28000],['Amruta Agarkar',360000],['Supriya Kokane',160000]],
+  'BB Warriors':[['Rachana Gujar',105000],['Manjiri Deshpande',85000],['Rasika Dhonde',135000],['Sanchita Lande',35000],['Pallavi Deodhar',320000],['Jai Sapre',13000],['Neha Joshi',70000],['Skanda Utturkar',110000],['Shruti Dharmadhikari',120000],['Rima Joshi',120000]],
+  'BB Mavericks':[['Prajakta Pawar',95000],['Anannya Godbole',120000],['Komal Jog',24000],['Sheetal Jain',40000],['Anika Ramanand Nadkarni',90000],['Kavita Agharkar',440000],['Ruta Kulkarni',80000],['Pallavi Dhuri',290000],['Isha Kale',10000],['Rupali Loke',10000]],
+  'BB Sunrisers':[['Premlata Jain',30000],['Aishwarya Padvi',115000],['Jyoti Bugade',85000],['Vrushali Gajane',210000],['Ashwini Gunjal',40000],['Sarika Santosh Kamble',25000],['Amruta Oke',170000],['Akshada',160000],['Archana Guhagarkar',190000],['Nishigandha Rajoba',10000]]
+};
+
+const STATS={
+  'BB Super Queens':{'Sangeeta Jadhav':{runs:null,avg:null,wkts:null,econ:null,mvp:null},'Swati Pingat':{runs:13,avg:6.50,wkts:1,econ:4.74,mvp:45},'Vrushali Mestry':{runs:49,avg:4.08,wkts:10,econ:7.85,mvp:25},'Sunita Shinde':{runs:3,avg:3.00,wkts:1,econ:10.40,mvp:52},'Sayali Hardikar':{runs:39,avg:4.88,wkts:10,econ:6.47,mvp:28},'Kshitee Godse':{runs:568,avg:47.33,wkts:14,econ:6.29,mvp:1},'Charuta Thatte':{runs:139,avg:11.58,wkts:13,econ:5.04,mvp:7},'Sneha Barve':{runs:223,avg:17.15,wkts:7,econ:6.09,mvp:12},'Mrunalini S Sawant':{runs:116,avg:5.80,wkts:5,econ:9.13,mvp:26},'Jyoti Palav':{runs:42,avg:3.00,wkts:11,econ:7.61,mvp:24}},
+  'BB Smashers':{'Sheetal Sahasrabudhe':{runs:217,avg:16.69,wkts:10,econ:8.87,mvp:8},'Mukta Karve':{runs:76,avg:9.50,wkts:14,econ:8.16,mvp:9},'Pradnya Patil':{runs:null,avg:null,wkts:null,econ:null,mvp:null},'Leena Ranade':{runs:324,avg:21.60,wkts:16,econ:5.16,mvp:2},'Nupura Patil':{runs:55,avg:3.44,wkts:5,econ:7.30,mvp:31},'Rohini Ravindra Gaikwad':{runs:6,avg:1.00,wkts:9,econ:8.38,mvp:34},'Prerna':{runs:90,avg:5.29,wkts:11,econ:7.59,mvp:16},'Akshada Balse':{runs:112,avg:8.62,wkts:4,econ:6.35,mvp:30},'Amruta Agarkar':{runs:313,avg:19.56,wkts:12,econ:10.11,mvp:4},'Supriya Kokane':{runs:160,avg:17.78,wkts:2,econ:7.87,mvp:23}},
+  'BB Warriors':{'Rachana Gujar':{runs:37,avg:3.08,wkts:8,econ:8.33,mvp:37},'Manjiri Deshpande':{runs:57,avg:5.70,wkts:5,econ:7.41,mvp:27},'Rasika Dhonde':{runs:46,avg:11.50,wkts:3,econ:9.75,mvp:41},'Sanchita Lande':{runs:38,avg:4.22,wkts:3,econ:5.11,mvp:36},'Pallavi Deodhar':{runs:337,avg:18.72,wkts:12,econ:6.10,mvp:3},'Jai Sapre':{runs:45,avg:7.50,wkts:6,econ:8.82,mvp:35},'Neha Joshi':{runs:21,avg:4.20,wkts:14,econ:8.41,mvp:18},'Skanda Utturkar':{runs:90,avg:7.50,wkts:8,econ:7.20,mvp:20},'Shruti Dharmadhikari':{runs:131,avg:9.36,wkts:14,econ:8.14,mvp:10},'Rima Joshi':{runs:130,avg:6.50,wkts:17,econ:5.73,mvp:6}},
+  'BB Mavericks':{'Prajakta Pawar':{runs:32,avg:4.57,wkts:2,econ:4.41,mvp:44},'Anannya Godbole':{runs:77,avg:15.40,wkts:14,econ:6.32,mvp:11},'Komal Jog':{runs:34,avg:4.86,wkts:7,econ:6.78,mvp:33},'Sheetal Jain':{runs:null,avg:null,wkts:null,econ:null,mvp:null},'Anika Ramanand Nadkarni':{runs:55,avg:3.93,wkts:4,econ:5.58,mvp:38},'Kavita Agharkar':{runs:169,avg:12.07,wkts:10,econ:7.45,mvp:13},'Ruta Kulkarni':{runs:30,avg:3.00,wkts:20,econ:6.69,mvp:15},'Pallavi Dhuri':{runs:355,avg:29.58,wkts:8,econ:8.88,mvp:5},'Isha Kale':{runs:17,avg:2.13,wkts:6,econ:6.00,mvp:40},'Rupali Loke':{runs:22,avg:3.67,wkts:3,econ:7.54,mvp:46}},
+  'BB Sunrisers':{'Premlata Jain':{runs:21,avg:1.75,wkts:4,econ:9.97,mvp:43},'Aishwarya Padvi':{runs:1,avg:1.00,wkts:null,econ:null,mvp:null},'Jyoti Bugade':{runs:35,avg:2.92,wkts:13,econ:7.04,mvp:19},'Vrushali Gajane':{runs:75,avg:8.33,wkts:10,econ:8.64,mvp:21},'Ashwini Gunjal':{runs:18,avg:3.00,wkts:5,econ:10.21,mvp:42},'Sarika Santosh Kamble':{runs:38,avg:5.43,wkts:19,econ:6.04,mvp:14},'Amruta Oke':{runs:158,avg:9.88,wkts:3,econ:9.46,mvp:22},'Akshada':{runs:null,avg:null,wkts:null,econ:null,mvp:null},'Archana Guhagarkar':{runs:112,avg:7.00,wkts:8,econ:6.67,mvp:17},'Nishigandha Rajoba':{runs:1,avg:0.25,wkts:null,econ:null,mvp:51}}
+};
+
+let results={};
+
+function n(v,dp=2){return v!=null?typeof v==='number'&&dp===0?v:Number(v).toFixed(dp):'<span class="na">—</span>';}
+
+function getStandings(){
+  const leagueFixtures=PW_FIXTURES.filter(f=>!f.round);
+  const s={};
+  PW.forEach(t=>s[t]={p:0,w:0,l:0,pts:0});
+  leagueFixtures.forEach(f=>{
+    const r=results[f.id];
+    if(!r||!s[f.home])return;
+    s[f.home].p++;s[f.away].p++;
+    if(r.winner===f.home){s[f.home].w++;s[f.home].pts+=2;s[f.away].l++;}
+    else{s[f.away].w++;s[f.away].pts+=2;s[f.home].l++;}
+  });
+  return Object.entries(s).sort((a,b)=>b[1].pts-a[1].pts||b[1].w-a[1].w);
+}
+
+function renderSchedule(){
+  const team=document.getElementById('team-filter').value;
+  const dayOrder={Saturday:0,Sunday:1};
+  const toMins=t=>{const[tm,ap]=t.trim().split(' ');let[h,m]=tm.split(':').map(Number);if(ap==='pm'&&h!==12)h+=12;if(ap==='am'&&h===12)h=0;return h*60+m;};
+  const raw=team==='all'?PW_FIXTURES:PW_FIXTURES.filter(f=>f.home===team||f.away===team);
+  const matches=[...raw].sort((a,b)=>dayOrder[a.day]-dayOrder[b.day]||toMins(a.time)-toMins(b.time)||a.turf-b.turf);
+  let html='',lastDay='';
+  matches.forEach(f=>{
+    if(f.day!==lastDay){lastDay=f.day;html+=`<div class="day-label">${f.day}</div>`;}
+    const r=results[f.id];
+    let rtag='<span class="result-tag r-ns">Not played</span>';
+    if(r){
+      if(team==='all')rtag=`<span class="result-tag r-w">${r.winner}</span>`;
+      else{const won=r.winner===team;rtag=`<span class="result-tag ${won?'r-w':'r-l'}">${won?'Won':'Lost'}${r.margin?' · '+r.margin:''}</span>`;}
+    }
+    let ptag='';
+    if(f.round)ptag=`<span class="playoff-tag">${f.round}</span>`;
+    const stag=MATCH_URLS[f.id]?`<a href="${MATCH_URLS[f.id]}" target="_blank" class="scorecard-btn">📋 Scorecard</a>`:'';
+    html+=`<div class="match-card"><div class="match-time">${f.time}</div><div class="match-teams">${f.home} <span class="vs"> vs </span>${f.away}</div><div class="match-meta"><span class="turf-tag t${f.turf}">Turf ${f.turf}</span>${ptag}${rtag}${stag}</div></div>`;
+  });
+  if(!html)html='<div class="empty">No matches found</div>';
+  document.getElementById('schedule-list').innerHTML=html;
+}
+
+function renderSquad(){
+  const team=document.getElementById('squad-select').value;
+  const players=SQUADS[team];if(!players)return;
+  const teamStats=STATS[team]||{};
+  const total=players.reduce((s,p)=>s+p[1],0);
+  const initials=team.replace('BB ','').split(' ').map(w=>w[0]).join('').slice(0,3);
+
+  let rows='';
+  players.forEach(([name,purse])=>{
+    const s=teamStats[name]||{};
+    const mvpBadge=s.mvp&&s.mvp<=10?`<span class="mvp-badge">#${s.mvp}</span>`:'';
+    rows+=`<tr>
+      <td>${name}${mvpBadge}</td>
+      <td>${n(s.runs,0)}</td>
+      <td>${n(s.avg)}</td>
+      <td>${n(s.wkts,0)}</td>
+      <td>${n(s.econ)}</td>
+      <td>${s.mvp!=null?s.mvp:'<span class="na">—</span>'}</td>
+    </tr>`;
+  });
+
+  document.getElementById('squad-display').innerHTML=`
+    <div class="squad-top">
+      <div class="squad-avatar">${initials}</div>
+      <div><div class="squad-title">${team}</div><div class="squad-sub">Women's League &nbsp;·&nbsp; Purse ₹${total.toLocaleString('en-IN')}</div></div>
+    </div>
+    <div class="scroll-hint">Scroll right for more →</div>
+    <div class="table-scroll">
+      <table class="stats-table">
+        <thead>
+          <tr>
+            <th rowspan="2" style="vertical-align:bottom;padding-bottom:6px;">Player</th>
+            <th colspan="2" class="group-batting">Batting</th>
+            <th colspan="2" class="group-bowling">Bowling</th>
+            <th rowspan="2" style="vertical-align:bottom;padding-bottom:6px;text-align:center;">MVP</th>
+          </tr>
+          <tr>
+            <th class="group-batting">Runs</th>
+            <th class="group-batting">Avg</th>
+            <th class="group-bowling">Wkts</th>
+            <th class="group-bowling">Eco</th>
+          </tr>
+        </thead>
+        <tbody>${rows}</tbody>
+      </table>
+    </div>`;
+}
+
+function renderStandings(){
+  document.getElementById('standings-list').innerHTML=getStandings().map(([name,s],i)=>`<div class="s-row"><span class="s-pos ${i<2?'q':''}">${i+1}</span><span class="s-name">${name}</span><span class="s-stat">${s.p}</span><span class="s-stat">${s.w}</span><span class="s-stat">${s.l}</span><span class="s-pts-val">${s.pts}</span></div>`).join('');
+  document.getElementById('qualify-note').textContent='Top 2 advance to Ladies Final. 2nd & 3rd play GSF1; winner faces 1st place in the Ladies Final.';
+}
+
+function showTab(tab,btn){
+  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('tab-'+tab).classList.add('active');btn.classList.add('active');
+  if(tab==='standings')renderStandings();
+}
+
+renderSchedule();renderSquad();renderStandings();
+</script>
+</body>
+</html>
