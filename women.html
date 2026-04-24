@@ -140,6 +140,11 @@ select:focus,input:focus{border-color:#880E4F;box-shadow:0 0 0 2px rgba(136,14,7
           <option value="BB Sunrisers">BB Sunrisers</option>
         </select>
       </div>
+      <div id="live-badge" style="display:none;font-size:11px;color:#880E4F;margin-bottom:10px;display:flex;align-items:center;gap:5px;">
+        <span style="width:7px;height:7px;background:#880E4F;border-radius:50%;display:inline-block;animation:pulse 1.5s infinite;"></span>
+        <span id="last-updated"></span>
+      </div>
+      <style>@keyframes pulse{0%,100%{opacity:1;}50%{opacity:0.3;}}</style>
       <div id="schedule-list"></div>
     </div>
 
@@ -244,8 +249,41 @@ const STATS={
 };
 
 let results={};
-try{const s=localStorage.getItem('bbw_results');if(s)results=JSON.parse(s);}catch(e){}
+
+// Load from localStorage (admin overrides) then merge with results.json (auto-fetched)
+function loadLocalResults(){
+  try{const s=localStorage.getItem('bbw_results');if(s)return JSON.parse(s);}catch(e){}
+  return {};
+}
 function saveResults(){try{localStorage.setItem('bbw_results',JSON.stringify(results));}catch(e){}}
+
+async function fetchRemoteResults(){
+  try{
+    const res=await fetch('results.json?t='+Date.now());
+    if(!res.ok)return {};
+    return await res.json();
+  }catch(e){return {};}
+}
+
+async function refreshResults(){
+  const remote=await fetchRemoteResults();
+  const local=loadLocalResults();
+  // Merge: local admin entries take priority over auto-fetched ones
+  results={...remote,...local};
+  renderSchedule();renderStandings();
+  // Update live badge
+  const badge=document.getElementById('live-badge');
+  const lbl=document.getElementById('last-updated');
+  const hasResults=Object.keys(results).length>0;
+  if(badge&&lbl){
+    badge.style.display='flex';
+    const t=new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'});
+    lbl.textContent=hasResults?`Results live · updated ${t}`:`Auto-refreshing · last checked ${t}`;
+  }
+}
+
+// Auto-refresh every 3 minutes
+setInterval(refreshResults,3*60*1000);
 
 function n(v,dp=2){return v!=null?typeof v==='number'&&dp===0?v:Number(v).toFixed(dp):'<span class="na">—</span>';}
 
@@ -275,13 +313,16 @@ function renderSchedule(){
     const r=results[f.id];
     let resultBlock='';
     if(r){
-      const loser=r.winner===f.home?f.away:f.home;
+      const isTied=r.winner==='Tied';
       const marginTxt=r.margin?` · ${r.margin}`:'';
-      if(team==='all'||!team){
-        resultBlock=`<div class="match-result mr-w">🏆 ${r.winner} won${marginTxt}</div>`;
+      const scoreTxt=r.score?`<div style="font-size:11px;opacity:0.75;margin-top:2px;">${r.score}</div>`:'';
+      if(isTied){
+        resultBlock=`<div class="match-result" style="background:var(--bg2);color:var(--text2);">🤝 Match Tied${scoreTxt}</div>`;
+      } else if(team==='all'||!team){
+        resultBlock=`<div class="match-result mr-w">🏆 ${r.winner} won${marginTxt}${scoreTxt}</div>`;
       } else {
         const won=r.winner===team;
-        resultBlock=`<div class="match-result ${won?'mr-w':'mr-l'}">${won?'🏆 Won':'❌ Lost'}${marginTxt}</div>`;
+        resultBlock=`<div class="match-result ${won?'mr-w':'mr-l'}">${won?'🏆 Won':'❌ Lost'}${marginTxt}${scoreTxt}</div>`;
       }
     }
     let ptag='';
@@ -380,14 +421,24 @@ function populateWinner(){
 function saveResult(){
   const fid=parseInt(document.getElementById('res-match').value),winner=document.getElementById('res-winner').value,margin=document.getElementById('res-margin').value.trim();
   if(!fid||!winner)return;
-  results[fid]={winner,margin};
-  saveResults();
+  // Store in localStorage so admin entry survives refresh and overrides remote
+  const local=loadLocalResults();
+  local[fid]={winner,margin,score:''};
+  try{localStorage.setItem('bbw_results',JSON.stringify(local));}catch(e){}
+  results=local;  // merge will happen on next auto-refresh; apply immediately
+  refreshResults().then(()=>{
   const msg=document.getElementById('ok-msg');msg.style.display='block';setTimeout(()=>msg.style.display='none',2500);
   document.getElementById('res-match').value='';document.getElementById('res-winner').innerHTML='<option value="">Select winner...</option>';document.getElementById('res-margin').value='';
-  populateMatchSelect();renderSchedule();renderStandings();renderLog();
+  populateMatchSelect();renderLog();
+  });
 }
 
-function undoResult(fid){delete results[fid];saveResults();populateMatchSelect();renderSchedule();renderStandings();renderLog();}
+function undoResult(fid){
+  const local=loadLocalResults();
+  delete local[fid];
+  try{localStorage.setItem('bbw_results',JSON.stringify(local));}catch(e){}
+  refreshResults().then(()=>{populateMatchSelect();renderLog();});
+}
 
 function renderLog(){
   const wrap=document.getElementById('log-wrap'),entered=PW_FIXTURES.filter(f=>!f.round&&results[f.id]);
@@ -396,7 +447,8 @@ function renderLog(){
   document.getElementById('log-list').innerHTML=entered.map(f=>{const r=results[f.id];return`<div class="log-row"><span class="log-match">${f.home.replace('BB ','')} vs ${f.away.replace('BB ','')}</span><span class="log-w">🏆 ${r.winner.replace('BB ','')}${r.margin?' ('+r.margin+')':''}</span><button class="undo-btn" onclick="undoResult(${f.id})">undo</button></div>`;}).join('');
 }
 
-renderSchedule();renderSquad();renderStandings();
+renderSquad();
+refreshResults();  // loads results.json + localStorage, then renders schedule & standings
 </script>
 </body>
 </html>
