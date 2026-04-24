@@ -35,11 +35,11 @@ jobs:
       - name: Fetch results from CricHeroes
         run: python scripts/fetch_results.py
 
-      - name: Commit updated results.json
+      - name: Commit updated files
         run: |
           git config user.name  "Results Bot"
           git config user.email "action@github.com"
-          git add results.json
+          git add results.json scripts/men_matches.json
           # Only commit if something actually changed
           git diff --staged --quiet || git commit -m "chore: update match results [skip ci]"
           git push

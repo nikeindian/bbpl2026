@@ -378,10 +378,33 @@ const MATCH_URLS={
   408:'https://cricheroes.com/scorecard/24202060/beyond-boundaries-2026-championship-female-/bb-super-queens-vs-bb-smashers/upcoming',
   409:'https://cricheroes.com/scorecard/24202095/beyond-boundaries-2026-championship-female-/bb-mavericks-vs-bb-warriors/upcoming',
   412:'https://cricheroes.com/scorecard/24202006/beyond-boundaries-2026-championship-female-/bb-super-queens-vs-bb-warriors/upcoming',
-  // ── Men's League ─ add when tournament link is available ────────────────
+  // ── Men's League — Pool A ───────────────────────────────────────────────
+  101:'https://cricheroes.com/scorecard/24207303/beyond-boundaries-2026-championship-vp-male/bb-devils-vs-bb-vikings/upcoming',
+  102:'https://cricheroes.com/scorecard/24207422/beyond-boundaries-2026-championship-vp-male/bb-bashers-vs-bb-big-blasters/upcoming',
+  103:'https://cricheroes.com/scorecard/24207483/beyond-boundaries-2026-championship-vp-male/bb-the-bro-squad-vs-bb-united/upcoming',
+  104:'https://cricheroes.com/scorecard/24201647/beyond-boundaries-2026-championship-vp-male/bb-maratha-vs-bb-vikings/upcoming',
+  105:'https://cricheroes.com/scorecard/24204120/beyond-boundaries-2026-championship-vp-male/bb-devils-vs-bb-bashers/upcoming',
+  107:'https://cricheroes.com/scorecard/24201819/beyond-boundaries-2026-championship-vp-male/bb-the-bro-squad-vs-bb-maratha/upcoming',
+  // ── Men's League — Pool B ───────────────────────────────────────────────
+  201:'https://cricheroes.com/scorecard/24203924/beyond-boundaries-2026-championship-vp-male/bb-super-kings-vs-bb-giants/upcoming',
+  202:'https://cricheroes.com/scorecard/24204068/beyond-boundaries-2026-championship-vp-male/bb-sg-legends-vs-bb-dhurandars/upcoming',
+  203:'https://cricheroes.com/scorecard/24204091/beyond-boundaries-2026-championship-vp-male/bb-yoddhas-vs-bb-gladiators-2026/upcoming',
+  204:'https://cricheroes.com/scorecard/24207543/beyond-boundaries-2026-championship-vp-male/bb-giants-vs-bb-team-game-changers/upcoming',
+  205:'https://cricheroes.com/scorecard/24201789/beyond-boundaries-2026-championship-vp-male/bb-sg-legends-vs-bb-super-kings/upcoming',
+  206:'https://cricheroes.com/scorecard/24207659/beyond-boundaries-2026-championship-vp-male/bb-dhurandars-vs-bb-yoddhas/upcoming',
+  // remaining 30 men's match URLs auto-discovered by GitHub Actions on first run
 };
 
 let results={},curPool='A';
+
+async function refreshResults(){
+  try{
+    const res=await fetch('results.json?t='+Date.now());
+    if(res.ok){const remote=await res.json();results={...remote};}
+  }catch(e){}
+  renderSchedule();renderStandings(curPool);
+}
+setInterval(refreshResults,3*60*1000);
 
 function n(v,dp=2){return v!=null?typeof v==='number'&&dp===0?v:Number(v).toFixed(dp):'<span class="na">—</span>';}
 
@@ -532,7 +555,7 @@ function renderLog(){
   document.getElementById('log-list').innerHTML=entered.map(f=>{const r=results[f.id];return`<div class="log-row"><span class="log-match">${f.home} vs ${f.away}</span><span class="log-w">${r.winner}${r.margin?' ('+r.margin+')':''}</span><button class="undo-btn" onclick="undoResult(${f.id})">undo</button></div>`;}).join('');
 }
 
-renderSchedule();renderSquad();renderStandings('A');
+renderSquad();renderStandings('A');refreshResults();
 </script>
 </body>
 </html>
