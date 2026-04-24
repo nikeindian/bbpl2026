@@ -27,6 +27,8 @@ html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Ro
 .back-link:hover{color:#fff;}
 .bb-logo{width:44px;height:44px;border-radius:50%;overflow:hidden;flex-shrink:0;display:flex;align-items:center;justify-content:center;}
 .bb-logo img{width:100%;height:100%;object-fit:cover;}
+.bb-logo{width:44px;height:44px;border-radius:50%;overflow:hidden;flex-shrink:0;display:flex;align-items:center;justify-content:center;}
+.bb-logo img{width:100%;height:100%;object-fit:cover;}
 .nav{display:flex;border-bottom:0.5px solid var(--border);background:var(--bg);flex-shrink:0;position:sticky;top:0;z-index:10;}
 .nav-btn{flex:1;padding:12px 4px;font-size:12px;font-weight:500;color:var(--text2);background:none;border:none;cursor:pointer;border-bottom:2px solid transparent;}
 .nav-btn.active{color:#880E4F;border-bottom-color:#880E4F;}
@@ -112,13 +114,16 @@ select:focus,input:focus{border-color:#880E4F;box-shadow:0 0 0 2px rgba(136,14,7
 <div class="shell">
   <div class="top-bar">
     <div>
-      <div class="top-bar-title">BB Women's Tournament 2026</div>
-      <div class="top-bar-sub">April 25–26 &nbsp;·&nbsp; MKB Ghatkopar</div>
+      <div class="top-bar-title">Beyond Boundaries Annual Tournament Women's S-1 (April 25-26)</div>
+      <div class="top-bar-sub">MKB Ghatkopar</div>
     </div>
-    <a href="index.html" class="back-link">
-      <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M7.5 2L3.5 6l4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-      Men's
-    </a>
+    <div style="display:flex;align-items:center;gap:10px;flex-shrink:0;">
+      <a href="index.html" class="back-link">
+        <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M7.5 2L3.5 6l4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Men's
+      </a>
+      <div class="bb-logo"><img src="BBPL 2026.jpg" alt="BBPL 2026"/></div>
+    </div>
   </div>
   <nav class="nav">
     <button class="nav-btn active" onclick="showTab('schedule',this)">Schedule</button>
