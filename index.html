@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8"/>
@@ -244,16 +244,16 @@ const PB=['BB Giants','BB SG Legends','BB Gladiators','BB Game Changers','BB Yod
 const PW=['BB Super Queens','BB Smashers','BB Warriors','BB Mavericks','BB Sunrisers'];
 const POOL_OF={};PA.forEach(t=>POOL_OF[t]='A');PB.forEach(t=>POOL_OF[t]='B');PW.forEach(t=>POOL_OF[t]='W');
 const PW_FIXTURES=[
-  {id:401,day:'Saturday',time:'5:15 pm',home:'BB Super Queens',away:'BB Sunrisers',turf:1,gender:'W'},
+  {id:401,day:'Saturday',time:'5:15 pm',home:'BB Super Queens',away:'BB Sunrisers',turf:3,gender:'W'},
   {id:402,day:'Saturday',time:'5:15 pm',home:'BB Smashers',away:'BB Mavericks',turf:2,gender:'W'},
-  {id:403,day:'Saturday',time:'6:45 pm',home:'BB Smashers',away:'BB Warriors',turf:1,gender:'W'},
+  {id:403,day:'Saturday',time:'6:45 pm',home:'BB Smashers',away:'BB Warriors',turf:3,gender:'W'},
   {id:404,day:'Saturday',time:'6:45 pm',home:'BB Mavericks',away:'BB Sunrisers',turf:2,gender:'W'},
-  {id:405,day:'Sunday',time:'9:45 am',home:'BB Super Queens',away:'BB Mavericks',turf:1,gender:'W'},
+  {id:405,day:'Sunday',time:'9:45 am',home:'BB Super Queens',away:'BB Mavericks',turf:3,gender:'W'},
   {id:406,day:'Sunday',time:'9:45 am',home:'BB Smashers',away:'BB Sunrisers',turf:2,gender:'W'},
-  {id:407,day:'Sunday',time:'11:15 am',home:'BB Warriors',away:'BB Sunrisers',turf:1,gender:'W'},
+  {id:407,day:'Sunday',time:'11:15 am',home:'BB Warriors',away:'BB Sunrisers',turf:3,gender:'W'},
   {id:408,day:'Sunday',time:'11:15 am',home:'BB Super Queens',away:'BB Smashers',turf:2,gender:'W'},
-  {id:409,day:'Sunday',time:'1:30 pm',home:'BB Warriors',away:'BB Mavericks',turf:1,gender:'W'},
-  {id:410,day:'Sunday',time:'2:30 pm',home:'2nd Girls',away:'3rd Girls',turf:3,gender:'W',round:'GSF1'},
+  {id:409,day:'Sunday',time:'1:30 pm',home:'BB Warriors',away:'BB Mavericks',turf:3,gender:'W'},
+  {id:410,day:'Sunday',time:'2:30 pm',home:'2nd Girls',away:'3rd Girls',turf:1,gender:'W',round:'GSF1'},
   {id:411,day:'Sunday',time:'4:30 pm',home:'1st Girls',away:'Winner GSF1',turf:2,gender:'W',round:'Ladies Final'},
 ];
 
@@ -302,58 +302,58 @@ const STATS={
 };
 
 const PA_FIXTURES=[
-  {id:101,day:'Saturday',time:'1:30 pm',home:'BB Vikings',away:'BB Devils',turf:1},
-  {id:102,day:'Saturday',time:'2:15 pm',home:'BB Bashers',away:'BB Big Blasters',turf:1},
-  {id:103,day:'Saturday',time:'3:00 pm',home:'BB Bro Squad',away:'BB United',turf:1},
-  {id:104,day:'Saturday',time:'3:00 pm',home:'BB Vikings',away:'BB Maratha',turf:3},
+  {id:101,day:'Saturday',time:'1:30 pm',home:'BB Vikings',away:'BB Devils',turf:3},
+  {id:102,day:'Saturday',time:'2:15 pm',home:'BB Bashers',away:'BB Big Blasters',turf:3},
+  {id:103,day:'Saturday',time:'3:00 pm',home:'BB Bro Squad',away:'BB United',turf:3},
+  {id:104,day:'Saturday',time:'3:00 pm',home:'BB Vikings',away:'BB Maratha',turf:1},
   {id:105,day:'Saturday',time:'3:45 pm',home:'BB Bashers',away:'BB Devils',turf:2},
   {id:106,day:'Saturday',time:'4:30 pm',home:'BB United',away:'BB Big Blasters',turf:2},
-  {id:107,day:'Saturday',time:'4:30 pm',home:'BB Bro Squad',away:'BB Maratha',turf:3},
+  {id:107,day:'Saturday',time:'4:30 pm',home:'BB Bro Squad',away:'BB Maratha',turf:1},
   {id:108,day:'Saturday',time:'6:00 pm',home:'BB Vikings',away:'BB Bashers',turf:2},
-  {id:109,day:'Saturday',time:'6:45 pm',home:'BB United',away:'BB Devils',turf:3},
-  {id:110,day:'Saturday',time:'7:30 pm',home:'BB Maratha',away:'BB Big Blasters',turf:1},
+  {id:109,day:'Saturday',time:'6:45 pm',home:'BB United',away:'BB Devils',turf:1},
+  {id:110,day:'Saturday',time:'7:30 pm',home:'BB Maratha',away:'BB Big Blasters',turf:3},
   {id:111,day:'Saturday',time:'7:30 pm',home:'BB Bashers',away:'BB Bro Squad',turf:2},
-  {id:112,day:'Saturday',time:'8:15 pm',home:'BB Vikings',away:'BB United',turf:3},
+  {id:112,day:'Saturday',time:'8:15 pm',home:'BB Vikings',away:'BB United',turf:1},
   {id:113,day:'Saturday',time:'9:00 pm',home:'BB Maratha',away:'BB Devils',turf:2},
-  {id:114,day:'Sunday',time:'9:00 am',home:'BB Bashers',away:'BB United',turf:1},
-  {id:115,day:'Sunday',time:'9:00 am',home:'BB Bro Squad',away:'BB Big Blasters',turf:3},
-  {id:116,day:'Sunday',time:'10:30 am',home:'BB Bro Squad',away:'BB Devils',turf:1},
+  {id:114,day:'Sunday',time:'9:00 am',home:'BB Bashers',away:'BB United',turf:3},
+  {id:115,day:'Sunday',time:'9:00 am',home:'BB Bro Squad',away:'BB Big Blasters',turf:1},
+  {id:116,day:'Sunday',time:'10:30 am',home:'BB Bro Squad',away:'BB Devils',turf:3},
   {id:117,day:'Sunday',time:'10:30 am',home:'BB Vikings',away:'BB Big Blasters',turf:2},
-  {id:118,day:'Sunday',time:'12:00 pm',home:'BB Vikings',away:'BB Bro Squad',turf:1},
-  {id:119,day:'Sunday',time:'12:00 pm',home:'BB Bashers',away:'BB Maratha',turf:3},
-  {id:120,day:'Sunday',time:'12:45 pm',home:'BB Big Blasters',away:'BB Devils',turf:3},
+  {id:118,day:'Sunday',time:'12:00 pm',home:'BB Vikings',away:'BB Bro Squad',turf:3},
+  {id:119,day:'Sunday',time:'12:00 pm',home:'BB Bashers',away:'BB Maratha',turf:1},
+  {id:120,day:'Sunday',time:'12:45 pm',home:'BB Big Blasters',away:'BB Devils',turf:1},
   {id:121,day:'Sunday',time:'1:30 pm',home:'BB Maratha',away:'BB United',turf:2},
 ];
 const PB_FIXTURES=[
   {id:201,day:'Saturday',time:'1:30 pm',home:'BB Giants',away:'BB Super Kings',turf:2},
   {id:202,day:'Saturday',time:'2:15 pm',home:'BB SG Legends',away:'BB Dhurandhars',turf:2},
   {id:203,day:'Saturday',time:'3:00 pm',home:'BB Gladiators',away:'BB Yoddhas',turf:2},
-  {id:204,day:'Saturday',time:'3:45 pm',home:'BB Giants',away:'BB Game Changers',turf:1},
-  {id:205,day:'Saturday',time:'3:45 pm',home:'BB SG Legends',away:'BB Super Kings',turf:3},
-  {id:206,day:'Saturday',time:'4:30 pm',home:'BB Yoddhas',away:'BB Dhurandhars',turf:1},
-  {id:207,day:'Saturday',time:'5:15 pm',home:'BB Gladiators',away:'BB Game Changers',turf:3},
-  {id:208,day:'Saturday',time:'6:00 pm',home:'BB Giants',away:'BB SG Legends',turf:1},
-  {id:209,day:'Saturday',time:'6:00 pm',home:'BB Yoddhas',away:'BB Super Kings',turf:3},
-  {id:210,day:'Saturday',time:'7:30 pm',home:'BB Game Changers',away:'BB Dhurandhars',turf:3},
-  {id:211,day:'Saturday',time:'8:15 pm',home:'BB SG Legends',away:'BB Gladiators',turf:1},
+  {id:204,day:'Saturday',time:'3:45 pm',home:'BB Giants',away:'BB Game Changers',turf:3},
+  {id:205,day:'Saturday',time:'3:45 pm',home:'BB SG Legends',away:'BB Super Kings',turf:1},
+  {id:206,day:'Saturday',time:'4:30 pm',home:'BB Yoddhas',away:'BB Dhurandhars',turf:3},
+  {id:207,day:'Saturday',time:'5:15 pm',home:'BB Gladiators',away:'BB Game Changers',turf:1},
+  {id:208,day:'Saturday',time:'6:00 pm',home:'BB Giants',away:'BB SG Legends',turf:3},
+  {id:209,day:'Saturday',time:'6:00 pm',home:'BB Yoddhas',away:'BB Super Kings',turf:1},
+  {id:210,day:'Saturday',time:'7:30 pm',home:'BB Game Changers',away:'BB Dhurandhars',turf:1},
+  {id:211,day:'Saturday',time:'8:15 pm',home:'BB SG Legends',away:'BB Gladiators',turf:3},
   {id:212,day:'Saturday',time:'8:15 pm',home:'BB Giants',away:'BB Yoddhas',turf:2},
-  {id:213,day:'Saturday',time:'9:00 pm',home:'BB Game Changers',away:'BB Super Kings',turf:1},
+  {id:213,day:'Saturday',time:'9:00 pm',home:'BB Game Changers',away:'BB Super Kings',turf:3},
   {id:214,day:'Sunday',time:'9:00 am',home:'BB Gladiators',away:'BB Dhurandhars',turf:2},
-  {id:215,day:'Sunday',time:'9:45 am',home:'BB SG Legends',away:'BB Yoddhas',turf:3},
-  {id:216,day:'Sunday',time:'10:30 am',home:'BB Giants',away:'BB Dhurandhars',turf:3},
-  {id:217,day:'Sunday',time:'11:15 am',home:'BB Gladiators',away:'BB Super Kings',turf:3},
+  {id:215,day:'Sunday',time:'9:45 am',home:'BB SG Legends',away:'BB Yoddhas',turf:1},
+  {id:216,day:'Sunday',time:'10:30 am',home:'BB Giants',away:'BB Dhurandhars',turf:1},
+  {id:217,day:'Sunday',time:'11:15 am',home:'BB Gladiators',away:'BB Super Kings',turf:1},
   {id:218,day:'Sunday',time:'12:00 pm',home:'BB SG Legends',away:'BB Game Changers',turf:2},
-  {id:219,day:'Sunday',time:'12:45 pm',home:'BB Giants',away:'BB Gladiators',turf:1},
+  {id:219,day:'Sunday',time:'12:45 pm',home:'BB Giants',away:'BB Gladiators',turf:3},
   {id:220,day:'Sunday',time:'12:45 pm',home:'BB Dhurandhars',away:'BB Super Kings',turf:2},
-  {id:221,day:'Sunday',time:'1:30 pm',home:'BB Game Changers',away:'BB Yoddhas',turf:3},
+  {id:221,day:'Sunday',time:'1:30 pm',home:'BB Game Changers',away:'BB Yoddhas',turf:1},
 ];
 
 const PLAYOFF_FIXTURES=[
-  {id:301,day:'Sunday',time:'2:30 pm',home:'2nd Pool A',away:'3rd Pool B',turf:1,round:'Q1'},
+  {id:301,day:'Sunday',time:'2:30 pm',home:'2nd Pool A',away:'3rd Pool B',turf:3,round:'Q1'},
   {id:302,day:'Sunday',time:'2:30 pm',home:'2nd Pool B',away:'3rd Pool A',turf:2,round:'Q2'},
-  {id:303,day:'Sunday',time:'3:30 pm',home:'1st Pool A',away:'Winner Q2',turf:1,round:'SF1'},
+  {id:303,day:'Sunday',time:'3:30 pm',home:'1st Pool A',away:'Winner Q2',turf:3,round:'SF1'},
   {id:304,day:'Sunday',time:'3:30 pm',home:'1st Pool B',away:'Winner Q1',turf:2,round:'SF2'},
-  {id:305,day:'Sunday',time:'5:30 pm',home:'Winner SF1',away:'Winner SF2',turf:1,round:'Final'},
+  {id:305,day:'Sunday',time:'5:30 pm',home:'Winner SF1',away:'Winner SF2',turf:3,round:'Final'},
 ];
 const ALL_FIXTURES=[...PA_FIXTURES,...PB_FIXTURES,...PLAYOFF_FIXTURES,...PW_FIXTURES];
 let results={},curPool='A';
@@ -502,3 +502,4 @@ renderSchedule();renderSquad();renderStandings('A');
 </script>
 </body>
 </html>
+
