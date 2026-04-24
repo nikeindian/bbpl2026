@@ -86,6 +86,24 @@ select:focus,input:focus{border-color:#880E4F;box-shadow:0 0 0 2px rgba(136,14,7
 .s-pts-val{width:28px;text-align:right;font-size:14px;font-weight:700;color:#880E4F;}
 .qualify-note{font-size:12px;color:var(--text2);margin-top:12px;padding:9px 12px;background:var(--bg2);border-radius:8px;line-height:1.5;}
 .scroll-hint{font-size:11px;color:var(--text3);text-align:right;margin-bottom:6px;}
+.match-result{font-size:12px;font-weight:600;padding:4px 10px;border-radius:6px;margin:7px 0 0;line-height:1.4;}
+.mr-w{background:var(--sbg);color:var(--stxt);}.mr-l{background:var(--dbg);color:var(--dtxt);}
+/* Admin */
+.admin-lock{display:flex;align-items:center;gap:10px;padding:12px;background:var(--bg2);border-radius:10px;margin-bottom:14px;font-size:13px;color:var(--text2);}
+.lock-icon{width:30px;height:30px;border-radius:50%;background:#FCE4EC;display:flex;align-items:center;justify-content:center;flex-shrink:0;color:#880E4F;}
+.admin-box{border:0.5px solid var(--border);border-radius:10px;padding:14px;margin-bottom:12px;}
+.admin-box h3{font-size:13px;font-weight:600;color:var(--text);margin-bottom:12px;}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.save-btn{width:100%;padding:11px;background:#6A0A4B;color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;margin-top:4px;}
+.save-btn:active{opacity:.85;}
+.err-msg{font-size:12px;color:var(--dtxt);margin-top:6px;}
+.ok-msg{font-size:12px;color:var(--stxt);margin-top:6px;font-weight:500;}
+.log-hdr{font-size:11px;font-weight:600;color:var(--text2);margin:14px 0 7px;text-transform:uppercase;letter-spacing:.05em;}
+.log-row{font-size:12px;color:var(--text2);padding:7px 0;border-bottom:0.5px solid var(--border);display:flex;justify-content:space-between;align-items:center;gap:8px;}
+.log-row:last-child{border-bottom:none;}
+.log-match{flex:1;font-size:11px;}
+.log-w{font-weight:600;color:var(--stxt);font-size:11px;white-space:nowrap;}
+.undo-btn{font-size:10px;color:var(--dtxt);background:none;border:0.5px solid var(--dtxt);border-radius:5px;cursor:pointer;padding:2px 6px;flex-shrink:0;}
 .empty{text-align:center;padding:40px 20px;color:var(--text3);font-size:13px;}
 @media(min-width:520px){.shell{box-shadow:0 0 40px rgba(0,0,0,0.1);}.scroll-hint{display:none;}}
 </style>
@@ -106,6 +124,7 @@ select:focus,input:focus{border-color:#880E4F;box-shadow:0 0 0 2px rgba(136,14,7
     <button class="nav-btn active" onclick="showTab('schedule',this)">Schedule</button>
     <button class="nav-btn" onclick="showTab('squad',this)">Squads</button>
     <button class="nav-btn" onclick="showTab('standings',this)">Standings</button>
+    <button class="nav-btn" onclick="showTab('admin',this)">Admin</button>
   </nav>
   <div class="content">
 
@@ -146,6 +165,33 @@ select:focus,input:focus{border-color:#880E4F;box-shadow:0 0 0 2px rgba(136,14,7
       </div>
       <div id="standings-list"></div>
       <div class="qualify-note" id="qualify-note"></div>
+    </div>
+
+    <div id="tab-admin" class="section">
+      <div class="admin-lock">
+        <div class="lock-icon"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="3" y="6" width="8" height="6" rx="1.5" stroke="currentColor" stroke-width="1.3"/><path d="M4.5 6V4.5a2.5 2.5 0 015 0V6" stroke="currentColor" stroke-width="1.3"/></svg></div>
+        <span>Admin only — password protected</span>
+      </div>
+      <div class="field-wrap">
+        <label>Password</label>
+        <input type="password" id="admin-pass" placeholder="Enter admin password" oninput="checkAdmin()"/>
+        <div id="pass-err" class="err-msg" style="display:none">Incorrect password</div>
+      </div>
+      <div id="admin-controls" style="display:none">
+        <div class="admin-box">
+          <h3>Enter match result</h3>
+          <div class="field-wrap"><label>Match</label>
+            <select id="res-match" onchange="populateWinner()"><option value="">Select match...</option></select>
+          </div>
+          <div class="two-col">
+            <div class="field-wrap"><label>Winner</label><select id="res-winner"><option value="">Select winner...</option></select></div>
+            <div class="field-wrap"><label>Margin (e.g. 15 runs)</label><input type="text" id="res-margin" placeholder="e.g. 18 runs"/></div>
+          </div>
+          <button class="save-btn" onclick="saveResult()">Save result</button>
+          <div id="ok-msg" class="ok-msg" style="display:none">Result saved!</div>
+        </div>
+        <div id="log-wrap" style="display:none"><div class="log-hdr">Results entered</div><div id="log-list"></div></div>
+      </div>
     </div>
 
   </div>
@@ -198,6 +244,8 @@ const STATS={
 };
 
 let results={};
+try{const s=localStorage.getItem('bbw_results');if(s)results=JSON.parse(s);}catch(e){}
+function saveResults(){try{localStorage.setItem('bbw_results',JSON.stringify(results));}catch(e){}}
 
 function n(v,dp=2){return v!=null?typeof v==='number'&&dp===0?v:Number(v).toFixed(dp):'<span class="na">—</span>';}
 
@@ -225,15 +273,21 @@ function renderSchedule(){
   matches.forEach(f=>{
     if(f.day!==lastDay){lastDay=f.day;html+=`<div class="day-label">${f.day}</div>`;}
     const r=results[f.id];
-    let rtag='<span class="result-tag r-ns">Not played</span>';
+    let resultBlock='';
     if(r){
-      if(team==='all')rtag=`<span class="result-tag r-w">${r.winner}</span>`;
-      else{const won=r.winner===team;rtag=`<span class="result-tag ${won?'r-w':'r-l'}">${won?'Won':'Lost'}${r.margin?' · '+r.margin:''}</span>`;}
+      const loser=r.winner===f.home?f.away:f.home;
+      const marginTxt=r.margin?` · ${r.margin}`:'';
+      if(team==='all'||!team){
+        resultBlock=`<div class="match-result mr-w">🏆 ${r.winner} won${marginTxt}</div>`;
+      } else {
+        const won=r.winner===team;
+        resultBlock=`<div class="match-result ${won?'mr-w':'mr-l'}">${won?'🏆 Won':'❌ Lost'}${marginTxt}</div>`;
+      }
     }
     let ptag='';
     if(f.round)ptag=`<span class="playoff-tag">${f.round}</span>`;
     const stag=MATCH_URLS[f.id]?`<a href="${MATCH_URLS[f.id]}" target="_blank" class="scorecard-btn">📋 Scorecard</a>`:'';
-    html+=`<div class="match-card"><div class="match-time">${f.time}</div><div class="match-teams">${f.home} <span class="vs"> vs </span>${f.away}</div><div class="match-meta"><span class="turf-tag t${f.turf}">Turf ${f.turf}</span>${ptag}${rtag}${stag}</div></div>`;
+    html+=`<div class="match-card"><div class="match-time">${f.time}</div><div class="match-teams">${f.home} <span class="vs"> vs </span>${f.away}</div>${resultBlock}<div class="match-meta"><span class="turf-tag t${f.turf}">Turf ${f.turf}</span>${ptag}${stag}</div></div>`;
   });
   if(!html)html='<div class="empty">No matches found</div>';
   document.getElementById('schedule-list').innerHTML=html;
@@ -297,6 +351,49 @@ function showTab(tab,btn){
   document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
   document.getElementById('tab-'+tab).classList.add('active');btn.classList.add('active');
   if(tab==='standings')renderStandings();
+  if(tab==='admin'&&document.getElementById('admin-controls').style.display==='block')renderLog();
+}
+
+function checkAdmin(){
+  const v=document.getElementById('admin-pass').value,ctrl=document.getElementById('admin-controls'),err=document.getElementById('pass-err');
+  if(v==='bbpl2026'){ctrl.style.display='block';err.style.display='none';populateMatchSelect();renderLog();}
+  else if(v.length>=8){ctrl.style.display='none';err.style.display='block';}
+  else{ctrl.style.display='none';err.style.display='none';}
+}
+
+function populateMatchSelect(){
+  const sel=document.getElementById('res-match');
+  sel.innerHTML='<option value="">Select match...</option>';
+  PW_FIXTURES.filter(f=>!f.round).forEach(f=>{
+    sel.innerHTML+=`<option value="${f.id}">${f.day} ${f.time} | ${f.home.replace('BB ','')} vs ${f.away.replace('BB ','')}${results[f.id]?' ✓':''}</option>`;
+  });
+  document.getElementById('res-winner').innerHTML='<option value="">Select winner...</option>';
+}
+
+function populateWinner(){
+  const f=PW_FIXTURES.find(x=>x.id===parseInt(document.getElementById('res-match').value)),ws=document.getElementById('res-winner');
+  ws.innerHTML='<option value="">Select winner...</option>';
+  if(f)ws.innerHTML+=`<option value="${f.home}">${f.home}</option><option value="${f.away}">${f.away}</option>`;
+  if(f&&results[f.id]){ws.value=results[f.id].winner;document.getElementById('res-margin').value=results[f.id].margin||'';}
+}
+
+function saveResult(){
+  const fid=parseInt(document.getElementById('res-match').value),winner=document.getElementById('res-winner').value,margin=document.getElementById('res-margin').value.trim();
+  if(!fid||!winner)return;
+  results[fid]={winner,margin};
+  saveResults();
+  const msg=document.getElementById('ok-msg');msg.style.display='block';setTimeout(()=>msg.style.display='none',2500);
+  document.getElementById('res-match').value='';document.getElementById('res-winner').innerHTML='<option value="">Select winner...</option>';document.getElementById('res-margin').value='';
+  populateMatchSelect();renderSchedule();renderStandings();renderLog();
+}
+
+function undoResult(fid){delete results[fid];saveResults();populateMatchSelect();renderSchedule();renderStandings();renderLog();}
+
+function renderLog(){
+  const wrap=document.getElementById('log-wrap'),entered=PW_FIXTURES.filter(f=>!f.round&&results[f.id]);
+  if(!entered.length){wrap.style.display='none';return;}
+  wrap.style.display='block';
+  document.getElementById('log-list').innerHTML=entered.map(f=>{const r=results[f.id];return`<div class="log-row"><span class="log-match">${f.home.replace('BB ','')} vs ${f.away.replace('BB ','')}</span><span class="log-w">🏆 ${r.winner.replace('BB ','')}${r.margin?' ('+r.margin+')':''}</span><button class="undo-btn" onclick="undoResult(${f.id})">undo</button></div>`;}).join('');
 }
 
 renderSchedule();renderSquad();renderStandings();

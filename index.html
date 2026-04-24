@@ -55,6 +55,8 @@ select:focus,input:focus{border-color:#BA7517;box-shadow:0 0 0 2px rgba(186,117,
 .result-tag{font-size:11px;padding:2px 8px;border-radius:20px;font-weight:600;margin-left:auto;}
 .scorecard-btn{font-size:11px;padding:2px 9px;border-radius:20px;font-weight:600;background:#E8F4FD;color:#1565C0;text-decoration:none;border:1px solid #90CAF9;white-space:nowrap;flex-shrink:0;}
 .scorecard-btn:hover{background:#BBDEFB;}
+.match-result{font-size:12px;font-weight:600;padding:4px 10px;border-radius:6px;margin:7px 0 0;line-height:1.4;}
+.mr-w{background:var(--sbg);color:var(--stxt);}.mr-l{background:var(--dbg);color:var(--dtxt);}
 .r-w{background:var(--sbg);color:var(--stxt);}.r-l{background:var(--dbg);color:var(--dtxt);}.r-ns{background:var(--bg2);color:var(--text3);}
 
 /* Squad */
@@ -402,8 +404,16 @@ function renderSchedule(){
   matches.forEach(f=>{
     if(f.day!==lastDay){lastDay=f.day;html+=`<div class="day-label">${f.day}</div>`;}
     const r=results[f.id],pool=POOL_OF[f.home];
-    let rtag='<span class="result-tag r-ns">Not played</span>';
-    if(r){if(team==='all')rtag=`<span class="result-tag r-w">${r.winner}</span>`;else{const won=r.winner===team;rtag=`<span class="result-tag ${won?'r-w':'r-l'}">${won?'Won':'Lost'}${r.margin?' · '+r.margin:''}</span>`;}}
+    let resultBlock='';
+    if(r){
+      const marginTxt=r.margin?` · ${r.margin}`:'';
+      if(team==='all'){
+        resultBlock=`<div class="match-result mr-w">🏆 ${r.winner} won${marginTxt}</div>`;
+      } else {
+        const won=r.winner===team;
+        resultBlock=`<div class="match-result ${won?'mr-w':'mr-l'}">${won?'🏆 Won':'❌ Lost'}${marginTxt}</div>`;
+      }
+    }
     let ptag='';
     if(team==='all'){
       if(f.round)ptag=`<span class="playoff-tag">${f.round}</span>`;
@@ -411,7 +421,7 @@ function renderSchedule(){
       else ptag=`<span class="pool-tag ${pool==='A'?'pa-tag':'pb-tag'}">Pool ${pool}</span>`;
     }
     const stag=MATCH_URLS[f.id]?`<a href="${MATCH_URLS[f.id]}" target="_blank" class="scorecard-btn">📋 Scorecard</a>`:'';
-    html+=`<div class="match-card"><div class="match-time">${f.time}</div><div class="match-teams">${f.home} <span class="vs"> vs </span>${f.away}</div><div class="match-meta"><span class="turf-tag t${f.turf}">Turf ${f.turf}</span>${ptag}${rtag}${stag}</div></div>`;
+    html+=`<div class="match-card"><div class="match-time">${f.time}</div><div class="match-teams">${f.home} <span class="vs"> vs </span>${f.away}</div>${resultBlock}<div class="match-meta"><span class="turf-tag t${f.turf}">Turf ${f.turf}</span>${ptag}${stag}</div></div>`;
   });
   if(!html)html='<div class="empty">No matches found</div>';
   document.getElementById('schedule-list').innerHTML=html;
