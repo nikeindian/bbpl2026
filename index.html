@@ -254,7 +254,8 @@ const PW_FIXTURES=[
   {id:408,day:'Sunday',time:'11:15 am',home:'BB Super Queens',away:'BB Smashers',turf:2,gender:'W'},
   {id:409,day:'Sunday',time:'1:30 pm',home:'BB Warriors',away:'BB Mavericks',turf:3,gender:'W'},
   {id:410,day:'Sunday',time:'2:30 pm',home:'2nd Girls',away:'3rd Girls',turf:1,gender:'W',round:'GSF1'},
-  {id:411,day:'Sunday',time:'4:30 pm',home:'1st Girls',away:'Winner GSF1',turf:2,gender:'W',round:'Ladies Final'},
+  {id:411,day:'Sunday',time:'4:30 pm',home:'1st Girls',away:'Winner GSF1',turf:1,gender:'W',round:'Ladies Final'},
+  {id:412,day:'Saturday',time:'9:00 pm',home:'BB Super Queens',away:'BB Warriors',turf:1,gender:'W'},
 ];
 
 const SQUADS={
@@ -302,8 +303,8 @@ const STATS={
 };
 
 const PA_FIXTURES=[
-  {id:101,day:'Saturday',time:'1:30 pm',home:'BB Vikings',away:'BB Devils',turf:3},
-  {id:102,day:'Saturday',time:'2:15 pm',home:'BB Bashers',away:'BB Big Blasters',turf:3},
+  {id:101,day:'Saturday',time:'1:30 pm',home:'BB Vikings',away:'BB Devils',turf:2},
+  {id:102,day:'Saturday',time:'2:15 pm',home:'BB Bashers',away:'BB Big Blasters',turf:2},
   {id:103,day:'Saturday',time:'3:00 pm',home:'BB Bro Squad',away:'BB United',turf:3},
   {id:104,day:'Saturday',time:'3:00 pm',home:'BB Vikings',away:'BB Maratha',turf:1},
   {id:105,day:'Saturday',time:'3:45 pm',home:'BB Bashers',away:'BB Devils',turf:2},
@@ -325,8 +326,8 @@ const PA_FIXTURES=[
   {id:121,day:'Sunday',time:'1:30 pm',home:'BB Maratha',away:'BB United',turf:2},
 ];
 const PB_FIXTURES=[
-  {id:201,day:'Saturday',time:'1:30 pm',home:'BB Giants',away:'BB Super Kings',turf:2},
-  {id:202,day:'Saturday',time:'2:15 pm',home:'BB SG Legends',away:'BB Dhurandhars',turf:2},
+  {id:201,day:'Saturday',time:'1:30 pm',home:'BB Giants',away:'BB Super Kings',turf:1},
+  {id:202,day:'Saturday',time:'2:15 pm',home:'BB SG Legends',away:'BB Dhurandhars',turf:1},
   {id:203,day:'Saturday',time:'3:00 pm',home:'BB Gladiators',away:'BB Yoddhas',turf:2},
   {id:204,day:'Saturday',time:'3:45 pm',home:'BB Giants',away:'BB Game Changers',turf:3},
   {id:205,day:'Saturday',time:'3:45 pm',home:'BB SG Legends',away:'BB Super Kings',turf:1},
@@ -351,9 +352,9 @@ const PB_FIXTURES=[
 const PLAYOFF_FIXTURES=[
   {id:301,day:'Sunday',time:'2:30 pm',home:'2nd Pool A',away:'3rd Pool B',turf:3,round:'Q1'},
   {id:302,day:'Sunday',time:'2:30 pm',home:'2nd Pool B',away:'3rd Pool A',turf:2,round:'Q2'},
-  {id:303,day:'Sunday',time:'3:30 pm',home:'1st Pool A',away:'Winner Q2',turf:3,round:'SF1'},
-  {id:304,day:'Sunday',time:'3:30 pm',home:'1st Pool B',away:'Winner Q1',turf:2,round:'SF2'},
-  {id:305,day:'Sunday',time:'5:30 pm',home:'Winner SF1',away:'Winner SF2',turf:3,round:'Final'},
+  {id:303,day:'Sunday',time:'3:30 pm',home:'1st Pool A',away:'Winner Q2',turf:2,round:'SF1'},
+  {id:304,day:'Sunday',time:'3:30 pm',home:'1st Pool B',away:'Winner Q1',turf:1,round:'SF2'},
+  {id:305,day:'Sunday',time:'5:30 pm',home:'Winner SF1',away:'Winner SF2',turf:1,round:'Final'},
 ];
 const ALL_FIXTURES=[...PA_FIXTURES,...PB_FIXTURES,...PLAYOFF_FIXTURES,...PW_FIXTURES];
 let results={},curPool='A';
