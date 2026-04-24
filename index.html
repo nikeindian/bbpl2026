@@ -53,6 +53,8 @@ select:focus,input:focus{border-color:#BA7517;box-shadow:0 0 0 2px rgba(186,117,
 .playoff-tag{font-size:10px;padding:2px 7px;border-radius:20px;font-weight:700;background:#1a1a2e;color:#EF9F27;}
 .women-tag{font-size:10px;padding:2px 7px;border-radius:20px;font-weight:700;background:#FCE4EC;color:#880E4F;}
 .result-tag{font-size:11px;padding:2px 8px;border-radius:20px;font-weight:600;margin-left:auto;}
+.scorecard-btn{font-size:11px;padding:2px 9px;border-radius:20px;font-weight:600;background:#E8F4FD;color:#1565C0;text-decoration:none;border:1px solid #90CAF9;white-space:nowrap;flex-shrink:0;}
+.scorecard-btn:hover{background:#BBDEFB;}
 .r-w{background:var(--sbg);color:var(--stxt);}.r-l{background:var(--dbg);color:var(--dtxt);}.r-ns{background:var(--bg2);color:var(--text3);}
 
 /* Squad */
@@ -357,6 +359,12 @@ const PLAYOFF_FIXTURES=[
   {id:305,day:'Sunday',time:'5:30 pm',home:'Winner SF1',away:'Winner SF2',turf:1,round:'Final'},
 ];
 const ALL_FIXTURES=[...PA_FIXTURES,...PB_FIXTURES,...PLAYOFF_FIXTURES,...PW_FIXTURES];
+
+// ── CricHeroes scorecard URLs — add match id → url as matches are played ──
+const MATCH_URLS={
+  // Example: 101:'https://cricheroes.com/tournament/match-scorecard/...',
+};
+
 let results={},curPool='A';
 
 function n(v,dp=2){return v!=null?typeof v==='number'&&dp===0?v:Number(v).toFixed(dp):'<span class="na">—</span>';}
@@ -388,7 +396,8 @@ function renderSchedule(){
       else if(f.gender==='W')ptag=`<span class="women-tag">Women's</span>`;
       else ptag=`<span class="pool-tag ${pool==='A'?'pa-tag':'pb-tag'}">Pool ${pool}</span>`;
     }
-    html+=`<div class="match-card"><div class="match-time">${f.time}</div><div class="match-teams">${f.home} <span class="vs"> vs </span>${f.away}</div><div class="match-meta"><span class="turf-tag t${f.turf}">Turf ${f.turf}</span>${ptag}${rtag}</div></div>`;
+    const stag=MATCH_URLS[f.id]?`<a href="${MATCH_URLS[f.id]}" target="_blank" class="scorecard-btn">📋 Scorecard</a>`:'';
+    html+=`<div class="match-card"><div class="match-time">${f.time}</div><div class="match-teams">${f.home} <span class="vs"> vs </span>${f.away}</div><div class="match-meta"><span class="turf-tag t${f.turf}">Turf ${f.turf}</span>${ptag}${rtag}${stag}</div></div>`;
   });
   if(!html)html='<div class="empty">No matches found</div>';
   document.getElementById('schedule-list').innerHTML=html;
