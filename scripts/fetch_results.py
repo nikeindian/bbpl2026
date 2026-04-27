@@ -370,53 +370,63 @@ async def main():
 
     changed = False
 
-    async with async_playwright() as pw:
-        browser = await pw.chromium.launch(headless=True)
-        ctx = await browser.new_context(
-            user_agent=(
-                'Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) '
-                'AppleWebKit/605.1.15 (KHTML, like Gecko) '
-                'Version/17.0 Mobile/15E148 Safari/604.1'
-            ),
-            viewport={'width': 390, 'height': 844},
-        )
-        pg = await ctx.new_page()
+    try:
+        async with async_playwright() as pw:
+            browser = await pw.chromium.launch(
+                headless=True,
+                args=['--no-sandbox', '--disable-dev-shm-usage'],
+            )
+            ctx = await browser.new_context(
+                user_agent=(
+                    'Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) '
+                    'AppleWebKit/605.1.15 (KHTML, like Gecko) '
+                    'Version/17.0 Mobile/15E148 Safari/604.1'
+                ),
+                viewport={'width': 390, 'height': 844},
+            )
+            pg = await ctx.new_page()
 
-        # ── Discover / load men's matches ──────────────────────────────────
-        if men_cache.exists():
-            men_matches = json.loads(men_cache.read_text())
-            print(f'Loaded {len(men_matches)} men\'s matches from cache.')
-        else:
-            men_matches = await discover_men_matches(pg)
-            if men_matches:
-                men_cache.write_text(json.dumps(men_matches, indent=2))
-                print(f'Saved men_matches.json ({len(men_matches)} matches).')
-            changed = True  # cache file is new — always commit
+            # ── Discover / load men's matches ──────────────────────────────────
+            if men_cache.exists():
+                men_matches = json.loads(men_cache.read_text())
+                print(f'Loaded {len(men_matches)} men\'s matches from cache.')
+            else:
+                men_matches = await discover_men_matches(pg)
+                if men_matches:
+                    men_cache.write_text(json.dumps(men_matches, indent=2))
+                    print(f'Saved men_matches.json ({len(men_matches)} matches).')
+                changed = True  # cache file is new — always commit
 
-        all_matches = [
-            ('women', WOMEN, WOMEN_ALIASES),
-            ('men',   men_matches, MEN_ALIASES),
-        ]
+            all_matches = [
+                ('women', WOMEN, WOMEN_ALIASES),
+                ('men',   men_matches, MEN_ALIASES),
+            ]
 
-        for label, matches, aliases in all_matches:
-            print(f'\n── {label.upper()} ─────────────────────────────')
-            for match in matches:
-                fid = str(match['fid'])
-                if fid in results:
-                    print(f'  skip fid={fid} (already recorded)')
-                    continue
-                result = await scrape_result(pg, match, aliases)
-                if result:
-                    results[fid] = result
-                    changed = True
+            for label, matches, aliases in all_matches:
+                print(f'\n── {label.upper()} ─────────────────────────────')
+                for match in matches:
+                    fid = str(match['fid'])
+                    if fid in results:
+                        print(f'  skip fid={fid} (already recorded)')
+                        continue
+                    result = await scrape_result(pg, match, aliases)
+                    if result:
+                        results[fid] = result
+                        changed = True
 
-        # ── Scrape points table (NRR) ──────────────────────────────────────
-        new_nrr = await scrape_points_table(pg)
-        if new_nrr and new_nrr != pts_table:
-            pts_table = new_nrr
-            changed = True
+            # ── Scrape points table (NRR) ──────────────────────────────────────
+            new_nrr = await scrape_points_table(pg)
+            if new_nrr and new_nrr != pts_table:
+                pts_table = new_nrr
+                changed = True
 
-        await browser.close()
+            await browser.close()
+
+    except Exception as exc:
+        import traceback
+        print(f'\n✗ Fatal error in Playwright session:\n{traceback.format_exc()}')
+        # Still write whatever results we collected before the crash
+        changed = bool(results) or bool(pts_table)
 
     if changed:
         results_path.write_text(json.dumps(results, indent=2))
@@ -426,7 +436,7 @@ async def main():
     else:
         print('\nNo changes — results.json unchanged.')
 
-    return 0
+    return 0  # always exit 0 so the commit step runs
 
 
 if __name__ == '__main__':
