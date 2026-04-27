@@ -2,10 +2,11 @@ name: Fetch Match Results
 
 on:
   # Run every 10 minutes during tournament hours (IST 8 AM–10 PM = UTC 2:30–16:30)
-  # April 25 (Saturday) and April 26 (Sunday)
+  # April 25 (Saturday), April 26 (Sunday), April 27 (post-tournament catch-up)
   schedule:
     - cron: '*/10 2-17 25 4 *'   # April 25
     - cron: '*/10 2-17 26 4 *'   # April 26
+    - cron: '*/10 2-17 27 4 *'   # April 27 — catch-up scrape for any missed results
 
   # Allow manual trigger from GitHub Actions tab
   workflow_dispatch:
@@ -19,7 +20,7 @@ env:
 jobs:
   fetch:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 30
 
     steps:
       - name: Checkout repo

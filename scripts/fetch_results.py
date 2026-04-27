@@ -252,8 +252,8 @@ async def scrape_result(page, match: dict, aliases: dict) -> dict | None:
     url = f"https://cricheroes.com/scorecard/{match['ch']}/"
     print(f"  GET {match['ch']}  fid={match['fid']}  {match['home']} vs {match['away']}")
     try:
-        await page.goto(url, wait_until='domcontentloaded', timeout=30_000)
-        await page.wait_for_timeout(4_000)
+        await page.goto(url, wait_until='domcontentloaded', timeout=40_000)
+        await page.wait_for_timeout(8_000)
         body = await page.evaluate('document.body.innerText')
     except Exception as exc:
         print(f'    ✗ load error: {exc}')
@@ -266,10 +266,11 @@ async def scrape_result(page, match: dict, aliases: dict) -> dict | None:
         scores = re.findall(r'\d+/\d+\s*\(\d+\.?\d*\)', body)
         return {'winner': 'Tied', 'margin': '', 'score': ' vs '.join(scores[:2])}
 
-    # Win
-    won = re.search(
-        r'([\w\s]+?)\s+won\s+by\s+(\d+\s+(?:runs?|wickets?))',
-        body, re.IGNORECASE
+    # Win — try multiple patterns CricHeroes uses
+    won = (
+        re.search(r'([\w\s&\-]+?)\s+won\s+by\s+(\d+\s+(?:runs?|wickets?))', body, re.IGNORECASE) or
+        re.search(r'([\w\s&\-]+?)\s+Won\s+By\s+(\d+\s+(?:Runs?|Wickets?))', body) or
+        re.search(r'Result[:\s]+([\w\s&\-]+?)\s+won\s+by\s+(\d+\s+(?:runs?|wickets?))', body, re.IGNORECASE)
     )
     if won:
         winner_raw = won.group(1).strip()
@@ -317,7 +318,7 @@ async def scrape_points_table(page) -> dict:
         print(f'  Loading {label}: {url}')
         try:
             await page.goto(url, wait_until='domcontentloaded', timeout=40_000)
-            await page.wait_for_timeout(5_000)
+            await page.wait_for_timeout(8_000)
             body = await page.evaluate('document.body.innerText')
         except Exception as e:
             print(f'  ✗ load error: {e}')
